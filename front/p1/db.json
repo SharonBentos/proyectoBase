@@ -1,0 +1,34 @@
+{
+  "usuarios": [
+    {
+      "id": "1",
+      "nombre": "admin",
+      "password": "admin123",
+      "rol": "admin"
+    },
+    {
+      "id": "e9e4",
+      "nombre": "sharon",
+      "password": "1234",
+      "rol": "alumno de postgrado"
+    },
+    {
+      "id": "0e99",
+      "nombre": "axel",
+      "password": "1234",
+      "rol": "docente"
+    },
+    {
+      "id": "bd8e",
+      "nombre": "Axel",
+      "password": "1234",
+      "rol": "alumno de grado"
+    },
+    {
+      "id": "d1db",
+      "nombre": "victoria",
+      "password": "12",
+      "rol": "docente"
+    }
+  ]
+}
