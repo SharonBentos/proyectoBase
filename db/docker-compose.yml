@@ -1,0 +1,10 @@
+services:
+  mysql:
+    image: docker.io/mysql:9.5.0
+    container_name: obligatorio-db-local
+    environment:
+      MYSQL_ROOT_PASSWORD: unsecreto
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql_db:/var/lib/mysql
