@@ -106,9 +106,9 @@ CREATE TABLE IF NOT EXISTS sancion_participante (
 );
 
 -- Relacionar login con participante (correo -> participante.email)
-ALTER TABLE login
-ADD CONSTRAINT fk_login_participante
-FOREIGN KEY (correo) REFERENCES participante(email);
+--ALTER TABLE login
+--ADD CONSTRAINT fk_login_participante
+--FOREIGN KEY (correo) REFERENCES participante(email);
 
 
 -- Datos maestros: facultades
