@@ -4,6 +4,10 @@ services:
     container_name: obligatorio-db-local
     environment:
       MYSQL_ROOT_PASSWORD: unsecreto
+
+      MYSQL_DATABASE: basesi
+      MYSQL_USER: basesi
+      MYSQL_PASSWORD: unsecreto
     ports:
       - 3306:3306
     volumes:
