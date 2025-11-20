@@ -1,36 +1,115 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import Login from './components/Login';
-import Register from './components/Register';
-import Dashboard from './components/Dashboard';
-import AdminPanel from './components/AdminPanel';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import PrivateRoute from './components/Auth/PrivateRoute';
+
+// Auth
+import Login from './components/Auth/Login';
+
+// User Components
+import Dashboard from './components/User/Dashboard';
+import MisReservas from './components/User/MisReservas';
+import NuevaReserva from './components/User/NuevaReserva';
+import MisSanciones from './components/User/MisSanciones';
+import SalasDisponibles from './components/User/SalasDisponibles';
+
+// Admin Components
+import AdminDashboard from './components/Admin/AdminDashboard';
+import ListaParticipantes from './components/Admin/Participantes/ListaParticipantes';
+import ListaSalas from './components/Admin/Salas/ListaSalas';
+import ListaReservas from './components/Admin/Reservas/ListaReservas';
+import ListaSanciones from './components/Admin/Sanciones/ListaSanciones';
+
 import './App.css';
 
 function App() {
-  const [usuarios, setUsuarios] = useState([]);
-
-  const cargarUsuarios = () => {
-    fetch('http://localhost:3001/usuarios')
-      .then(res => res.json())
-      .then(data => setUsuarios(data));
-  };
-
-  useEffect(() => {
-    cargarUsuarios();
-  }, []);
-
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login usuarios={usuarios} />} />
-        <Route
-          path="/register"
-          element={<Register usuarios={usuarios} onRegister={cargarUsuarios} />}
-        />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/admin" element={<AdminPanel />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Rutas públicas */}
+          <Route path="/" element={<Login />} />
+
+          {/* Rutas de usuario normal */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/mis-reservas" 
+            element={
+              <PrivateRoute>
+                <MisReservas />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/nueva-reserva" 
+            element={
+              <PrivateRoute>
+                <NuevaReserva />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/salas" 
+            element={
+              <PrivateRoute>
+                <SalasDisponibles />
+              </PrivateRoute>
+            } 
+          />
+
+          {/* Rutas de administrador */}
+          <Route 
+            path="/admin" 
+            element={
+              <PrivateRoute requireAdmin={true}>
+                <AdminDashboard />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/admin/participantes" 
+            element={
+              <PrivateRoute requireAdmin={true}>
+                <ListaParticipantes />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/admin/salas" 
+            element={
+              <PrivateRoute requireAdmin={true}>
+                <ListaSalas />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/admin/reservas" 
+            element={
+              <PrivateRoute requireAdmin={true}>
+                <ListaReservas />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/admin/sanciones" 
+            element={
+              <PrivateRoute requireAdmin={true}>
+                <ListaSanciones />
+              </PrivateRoute>
+            } 
+          />
+
+          {/* Ruta por defecto */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
