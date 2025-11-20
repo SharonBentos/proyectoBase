@@ -121,38 +121,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Acciones rápidas */}
-        <div className="quick-actions">
-          <h2>Acciones Rápidas</h2>
-          <div className="actions-grid">
-            {sanciones.length > 0 ? (
-              <div className="action-card disabled" title="No puedes reservar mientras tengas sanciones activas">
-                <span className="action-icon">🚫</span>
-                <h3>Nueva Reserva</h3>
-                <p>Bloqueado por sanción activa</p>
-              </div>
-            ) : (
-              <Link to="/nueva-reserva" className="action-card">
-                <span className="action-icon">➕</span>
-                <h3>Nueva Reserva</h3>
-                <p>Reservar una sala de estudio</p>
-              </Link>
-            )}
-
-            <Link to="/mis-reservas" className="action-card">
-              <span className="action-icon">📋</span>
-              <h3>Mis Reservas</h3>
-              <p>Ver todas tus reservas</p>
-            </Link>
-
-            <Link to="/salas" className="action-card">
-              <span className="action-icon">🔍</span>
-              <h3>Salas Disponibles</h3>
-              <p>Explorar salas disponibles</p>
-            </Link>
-          </div>
-        </div>
-
         {/* Últimas reservas */}
         <div className="recent-reservations">
           <div className="section-header">

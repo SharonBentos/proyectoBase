@@ -1,14 +1,41 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useState, useEffect } from 'react';
+import { obtenerSancionesPorParticipante } from '../../services/api';
 import './Navbar.css';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [tieneSancion, setTieneSancion] = useState(false);
+
+  useEffect(() => {
+    if (user?.ci && !isAdmin()) {
+      verificarSanciones();
+    }
+  }, [user]);
+
+  const verificarSanciones = async () => {
+    try {
+      const sanciones = await obtenerSancionesPorParticipante(user.ci);
+      const hoy = new Date();
+      const tieneActiva = sanciones.some(s => new Date(s.fecha_fin) >= hoy);
+      setTieneSancion(tieneActiva);
+    } catch (error) {
+      console.error('Error al verificar sanciones:', error);
+    }
+  };
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleNuevaReserva = (e) => {
+    if (tieneSancion) {
+      e.preventDefault();
+      alert('No puedes crear reservas mientras tengas sanciones activas. Revisa tu dashboard para más información.');
+    }
   };
 
   return (
@@ -49,7 +76,11 @@ const Navbar = () => {
               <Link to="/mis-reservas" className="navbar-link">
                 📋 Mis Reservas
               </Link>
-              <Link to="/nueva-reserva" className="navbar-link">
+              <Link 
+                to="/nueva-reserva" 
+                className={`navbar-link ${tieneSancion ? 'disabled' : ''}`}
+                onClick={handleNuevaReserva}
+              >
                 ➕ Nueva Reserva
               </Link>
               <Link to="/salas" className="navbar-link">
