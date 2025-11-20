@@ -9,8 +9,11 @@ services:
       obligatorio-bases:
     environment:
       MYSQL_ROOT_PASSWORD: unsecreto
+    ports:
+      - "3306:3306"
     volumes:
       - ./mysql_db:/var/lib/mysql
+      - ./db/init_salas.sql:/docker-entrypoint-initdb.d/init.sql
 
   backend:
     image: obligatorio-bases-backend
