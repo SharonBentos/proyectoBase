@@ -3,12 +3,12 @@ import { useAuth } from '../../hooks/useAuth';
 import { obtenerReservas, cancelarReserva, registrarAsistencia } from '../../services/api';
 import { formatDate, formatTime, getEstadoColor, isToday } from '../../utils/helpers';
 import Layout from '../Layout/Layout';
-import './MisReservas.css';
+import { Alert, Loading, Button, EmptyState } from '../Common';
 
 const MisReservas = () => {
   const { user } = useAuth();
   const [reservas, setReservas] = useState([]);
-  const [filtro, setFiltro] = useState('todas'); // todas, activas, pasadas
+  const [filtro, setFiltro] = useState('todas');
   const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
@@ -18,12 +18,8 @@ const MisReservas = () => {
 
   const cargarReservas = async () => {
     try {
-      setLoading(true);
       const todasReservas = await obtenerReservas();
-      const misReservas = todasReservas.filter(r => 
-        r.participantes_ci?.includes(user?.ci)
-      );
-      setReservas(misReservas);
+      setReservas(todasReservas.filter(r => r.participantes_ci?.includes(user?.ci)));
     } catch (error) {
       mostrarMensaje('error', 'Error al cargar las reservas');
     } finally {
@@ -32,13 +28,11 @@ const MisReservas = () => {
   };
 
   const handleCancelar = async (idReserva) => {
-    if (!confirm('¿Estás seguro de que quieres cancelar esta reserva?')) {
-      return;
-    }
-
+    if (!confirm('¿Cancelar esta reserva?')) return;
+    
     try {
       await cancelarReserva(idReserva);
-      mostrarMensaje('success', 'Reserva cancelada correctamente');
+      mostrarMensaje('success', 'Reserva cancelada');
       cargarReservas();
     } catch (error) {
       mostrarMensaje('error', error.message);
@@ -48,7 +42,7 @@ const MisReservas = () => {
   const handleRegistrarAsistencia = async (idReserva) => {
     try {
       await registrarAsistencia(idReserva, user.ci, true);
-      mostrarMensaje('success', 'Asistencia registrada correctamente');
+      mostrarMensaje('success', 'Asistencia registrada');
       cargarReservas();
     } catch (error) {
       mostrarMensaje('error', error.message);
@@ -57,7 +51,7 @@ const MisReservas = () => {
 
   const mostrarMensaje = (tipo, texto) => {
     setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje({ tipo: '', texto: '' }), 4000);
+    setTimeout(() => setMensaje({ tipo: '', texto: '' }), 3000);
   };
 
   const reservasFiltradas = reservas.filter(r => {
@@ -69,9 +63,7 @@ const MisReservas = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="loading-container">
-          <div className="loading-spinner">Cargando...</div>
-        </div>
+        <Loading />
       </Layout>
     );
   }
@@ -85,9 +77,9 @@ const MisReservas = () => {
         </div>
 
         {mensaje.texto && (
-          <div className={`alert alert-${mensaje.tipo}`}>
+          <Alert type={mensaje.tipo}>
             {mensaje.texto}
-          </div>
+          </Alert>
         )}
 
         <div className="filters">
@@ -112,9 +104,10 @@ const MisReservas = () => {
         </div>
 
         {reservasFiltradas.length === 0 ? (
-          <div className="empty-state">
-            <p>No tienes reservas {filtro !== 'todas' ? filtro : ''}</p>
-          </div>
+          <EmptyState 
+            message={`No tienes reservas${filtro !== 'todas' ? ' ' + filtro : ''}`}
+            icon="📋"
+          />
         ) : (
           <div className="reservas-grid">
             {reservasFiltradas.map(reserva => (
@@ -130,49 +123,30 @@ const MisReservas = () => {
                 </div>
 
                 <div className="reserva-details">
-                  <div className="detail-row">
-                    <span className="detail-icon">📍</span>
-                    <span>{reserva.edificio}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-icon">📅</span>
-                    <span>{formatDate(reserva.fecha)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-icon">⏰</span>
-                    <span>
-                      {formatTime(reserva.hora_inicio)} - {formatTime(reserva.hora_fin)}
-                    </span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-icon">👥</span>
-                    <span>{reserva.participantes_ci?.length || 0} participantes</span>
-                  </div>
+                  <p>📍 {reserva.edificio}</p>
+                  <p>📅 {formatDate(reserva.fecha)}</p>
+                  <p>⏰ {formatTime(reserva.hora_inicio)} - {formatTime(reserva.hora_fin)}</p>
+                  <p>👥 {reserva.participantes_ci?.length || 0} participantes</p>
                 </div>
 
-                <div className="reserva-actions">
-                  {reserva.estado === 'activa' && (
-                    <>
-                      {isToday(reserva.fecha) && !reserva.asistencia && (
-                        <button 
-                          className="btn-success"
-                          onClick={() => handleRegistrarAsistencia(reserva.id_reserva)}
-                        >
-                          ✓ Registrar Asistencia
-                        </button>
-                      )}
-                      <button 
-                        className="btn-danger"
-                        onClick={() => handleCancelar(reserva.id_reserva)}
+                {reserva.estado === 'activa' && (
+                  <div className="reserva-actions">
+                    {isToday(reserva.fecha) && !reserva.asistencia && (
+                      <Button 
+                        variant="success"
+                        onClick={() => handleRegistrarAsistencia(reserva.id_reserva)}
                       >
-                        Cancelar
-                      </button>
-                    </>
-                  )}
-                  {reserva.asistencia && (
-                    <span className="asistencia-badge">✓ Asistencia registrada</span>
-                  )}
-                </div>
+                        ✓ Asistencia
+                      </Button>
+                    )}
+                    <Button 
+                      variant="danger"
+                      onClick={() => handleCancelar(reserva.id_reserva)}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

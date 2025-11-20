@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { obtenerSancionesPorParticipante } from '../../services/api';
 import { formatDate } from '../../utils/helpers';
 import Layout from '../Layout/Layout';
-import './MisSanciones.css';
+import { Loading, Alert, EmptyState } from '../Common';
 
 const MisSanciones = () => {
   const { user } = useAuth();
@@ -16,13 +16,12 @@ const MisSanciones = () => {
 
   const cargarSanciones = async () => {
     try {
-      setLoading(true);
       if (user?.ci) {
         const data = await obtenerSancionesPorParticipante(user.ci);
         setSanciones(data);
       }
     } catch (error) {
-      console.error('Error al cargar sanciones:', error);
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
@@ -44,12 +43,11 @@ const MisSanciones = () => {
   };
 
   const sancionesActivas = sanciones.filter(s => new Date(s.fecha_fin) >= new Date());
-  const sancionesHistoricas = sanciones.filter(s => new Date(s.fecha_fin) < new Date());
 
   if (loading) {
     return (
       <Layout>
-        <div className="loading-container">Cargando...</div>
+        <Loading />
       </Layout>
     );
   }
@@ -59,110 +57,49 @@ const MisSanciones = () => {
       <div className="mis-sanciones">
         <div className="page-header">
           <h1>Mis Sanciones</h1>
-          <p className="subtitle">
-            {sancionesActivas.length > 0 
-              ? '⚠️ Tienes sanciones activas que te impiden hacer reservas'
-              : '✅ No tienes sanciones activas'
-            }
-          </p>
+          <p>{sancionesActivas.length > 0 ? '⚠️ Tienes sanciones activas' : '✅ Sin sanciones'}</p>
         </div>
 
-        {sancionesActivas.length > 0 && (
-          <div className="sanciones-activas">
-            <h2>🚫 Sanciones Activas</h2>
-            <div className="info-box warning">
-              <p><strong>Importante:</strong> Mientras tengas sanciones activas no podrás realizar nuevas reservas.</p>
-              <p>Las sanciones se aplican por no asistir a reservas confirmadas.</p>
-            </div>
+        {sancionesActivas.length > 0 ? (
+          <>
+            <Alert type="warning">
+              <strong>Importante:</strong> No podrás realizar reservas mientras tengas sanciones activas.
+            </Alert>
 
             <div className="sanciones-list">
               {sancionesActivas.map(sancion => {
                 const estado = getSancionEstado(sancion.fecha_fin);
                 return (
-                  <div key={sancion.id_sancion} className="sancion-card activa">
+                  <div key={sancion.id_sancion} className="sancion-card">
                     <div className="sancion-header">
-                      <span className="sancion-id">Sanción #{sancion.id_sancion}</span>
+                      <h3>Sanción #{sancion.id_sancion}</h3>
                       <span className={`sancion-estado ${estado.clase}`}>{estado.texto}</span>
                     </div>
                     <div className="sancion-body">
-                      <div className="sancion-fechas">
-                        <div className="fecha-item">
-                          <span className="label">Desde:</span>
-                          <span className="valor">{formatDate(sancion.fecha_inicio)}</span>
-                        </div>
-                        <div className="fecha-item">
-                          <span className="label">Hasta:</span>
-                          <span className="valor destacado">{formatDate(sancion.fecha_fin)}</span>
-                        </div>
-                      </div>
-                      {sancion.motivo && (
-                        <div className="sancion-motivo">
-                          <span className="label">Motivo:</span>
-                          <p>{sancion.motivo}</p>
-                        </div>
-                      )}
+                      <p>📅 <strong>Desde:</strong> {formatDate(sancion.fecha_inicio)}</p>
+                      <p>📅 <strong>Hasta:</strong> {formatDate(sancion.fecha_fin)}</p>
+                      {sancion.motivo && <p>💬 <strong>Motivo:</strong> {sancion.motivo}</p>}
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </>
+        ) : (
+          <Alert type="success">
+            <h3>¡Excelente! 🎉</h3>
+            <p>No tienes sanciones. Recuerda asistir siempre a tus reservas.</p>
+          </Alert>
         )}
 
-        {sancionesHistoricas.length > 0 && (
-          <div className="sanciones-historicas">
-            <h2>📋 Historial de Sanciones</h2>
-            <div className="sanciones-list">
-              {sancionesHistoricas.map(sancion => {
-                const estado = getSancionEstado(sancion.fecha_fin);
-                return (
-                  <div key={sancion.id_sancion} className="sancion-card historica">
-                    <div className="sancion-header">
-                      <span className="sancion-id">Sanción #{sancion.id_sancion}</span>
-                      <span className={`sancion-estado ${estado.clase}`}>{estado.texto}</span>
-                    </div>
-                    <div className="sancion-body">
-                      <div className="sancion-fechas">
-                        <div className="fecha-item">
-                          <span className="label">Desde:</span>
-                          <span className="valor">{formatDate(sancion.fecha_inicio)}</span>
-                        </div>
-                        <div className="fecha-item">
-                          <span className="label">Hasta:</span>
-                          <span className="valor">{formatDate(sancion.fecha_fin)}</span>
-                        </div>
-                      </div>
-                      {sancion.motivo && (
-                        <div className="sancion-motivo">
-                          <span className="label">Motivo:</span>
-                          <p>{sancion.motivo}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {sanciones.length === 0 && (
-          <div className="info-box success">
-            <h3>¡Excelente comportamiento! 🎉</h3>
-            <p>No tienes ninguna sanción en tu historial.</p>
-            <p>Recuerda siempre asistir a tus reservas o cancelarlas con anticipación.</p>
-          </div>
-        )}
-
-        <div className="info-box info">
-          <h3>ℹ️ ¿Por qué recibo sanciones?</h3>
+        <Alert type="info">
+          <h3>ℹ️ Información sobre sanciones</h3>
           <ul>
-            <li>No asistir a una reserva sin cancelarla previamente</li>
-            <li>Ningún participante de la reserva se presenta en el horario establecido</li>
-            <li>Uso indebido de las instalaciones</li>
+            <li>Se aplican cuando no asistes a una reserva sin cancelarla</li>
+            <li>La duración es de 2 meses desde la fecha de inicio</li>
+            <li>Durante la sanción no podrás crear nuevas reservas</li>
           </ul>
-          <p><strong>Duración típica:</strong> 2 meses sin poder realizar reservas</p>
-        </div>
+        </Alert>
       </div>
     </Layout>
   );

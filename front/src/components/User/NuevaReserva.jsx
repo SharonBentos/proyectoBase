@@ -9,7 +9,7 @@ import {
 } from '../../services/api';
 import { getTodayString } from '../../utils/helpers';
 import Layout from '../Layout/Layout';
-import './NuevaReserva.css';
+import { Alert, Loading, Button } from '../Common';
 
 const NuevaReserva = () => {
   const { user, canAccessSala } = useAuth();
@@ -121,46 +121,26 @@ const NuevaReserva = () => {
 
   const handleAgregarParticipante = () => {
     const email = emailInput.trim().toLowerCase();
-    
-    if (!email) {
-      mostrarMensaje('error', 'Ingresa un email');
-      return;
-    }
+    if (!email) return mostrarMensaje('error', 'Ingresa un email');
 
-    // Buscar el participante por email
     const participante = participantes.find(p => p.email.toLowerCase() === email);
-    
-    if (!participante) {
-      mostrarMensaje('error', 'No se encontró un participante con ese email');
-      return;
-    }
-
-    // Verificar si ya está agregado
-    if (formData.participantes_ci.includes(participante.ci)) {
-      mostrarMensaje('error', 'Este participante ya está agregado');
-      return;
-    }
-
-    // Verificar capacidad de la sala
+    if (!participante) return mostrarMensaje('error', 'Email no encontrado');
+    if (formData.participantes_ci.includes(participante.ci)) return mostrarMensaje('error', 'Ya está agregado');
     if (salaSeleccionada && formData.participantes_ci.length >= salaSeleccionada.capacidad) {
-      mostrarMensaje('error', `La sala tiene capacidad para ${salaSeleccionada.capacidad} personas`);
-      return;
+      return mostrarMensaje('error', `Capacidad máxima: ${salaSeleccionada.capacidad}`);
     }
 
-    // Agregar participante
     setFormData(prev => ({
       ...prev,
       participantes_ci: [...prev.participantes_ci, participante.ci]
     }));
     
     setEmailInput('');
-    mostrarMensaje('success', `${participante.nombre} ${participante.apellido} agregado`);
+    mostrarMensaje('success', `${participante.nombre} agregado`);
   };
 
   const handleRemoverParticipante = (ci) => {
-    // No permitir eliminar al usuario actual
     if (ci === user?.ci) return;
-
     setFormData(prev => ({
       ...prev,
       participantes_ci: prev.participantes_ci.filter(p => p !== ci)
@@ -170,31 +150,16 @@ const NuevaReserva = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validaciones
-    if (!formData.nombre_sala || !formData.edificio) {
-      mostrarMensaje('error', 'Debes seleccionar una sala');
-      return;
-    }
-
-    if (formData.turnos_seleccionados.length === 0) {
-      mostrarMensaje('error', 'Debes seleccionar al menos un turno');
-      return;
-    }
-
-    if (formData.participantes_ci.length === 0) {
-      mostrarMensaje('error', 'Debes incluir al menos un participante');
-      return;
-    }
-
+    if (!formData.nombre_sala) return mostrarMensaje('error', 'Selecciona una sala');
+    if (formData.turnos_seleccionados.length === 0) return mostrarMensaje('error', 'Selecciona al menos un turno');
+    if (formData.participantes_ci.length === 0) return mostrarMensaje('error', 'Agrega al menos un participante');
     if (salaSeleccionada && formData.participantes_ci.length > salaSeleccionada.capacidad) {
-      mostrarMensaje('error', `La sala tiene capacidad para ${salaSeleccionada.capacidad} personas`);
-      return;
+      return mostrarMensaje('error', `Capacidad máxima: ${salaSeleccionada.capacidad} personas`);
     }
 
     try {
       setSubmitting(true);
 
-      // Crear una reserva por cada turno seleccionado
       for (const idTurno of formData.turnos_seleccionados) {
         await crearReserva({
           nombre_sala: formData.nombre_sala,
@@ -205,12 +170,8 @@ const NuevaReserva = () => {
         });
       }
 
-      mostrarMensaje('success', 'Reserva(s) creada(s) correctamente');
-      
-      // Redirigir después de 2 segundos
-      setTimeout(() => {
-        navigate('/mis-reservas');
-      }, 2000);
+      mostrarMensaje('success', 'Reserva creada');
+      setTimeout(() => navigate('/mis-reservas'), 1500);
 
     } catch (error) {
       mostrarMensaje('error', error.message || 'Error al crear la reserva');
@@ -221,15 +182,13 @@ const NuevaReserva = () => {
 
   const mostrarMensaje = (tipo, texto) => {
     setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje({ tipo: '', texto: '' }), 5000);
+    setTimeout(() => setMensaje({ tipo: '', texto: '' }), 3000);
   };
 
   if (loading) {
     return (
       <Layout>
-        <div className="loading-container">
-          <div className="loading-spinner">Cargando...</div>
-        </div>
+        <Loading />
       </Layout>
     );
   }
@@ -243,9 +202,9 @@ const NuevaReserva = () => {
         </div>
 
         {mensaje.texto && (
-          <div className={`alert alert-${mensaje.tipo}`}>
+          <Alert type={mensaje.tipo}>
             {mensaje.texto}
-          </div>
+          </Alert>
         )}
 
         <form onSubmit={handleSubmit} className="reserva-form">
@@ -388,21 +347,20 @@ const NuevaReserva = () => {
           </div>
 
           <div className="form-actions">
-            <button 
-              type="button" 
-              className="btn-secondary"
+            <Button 
+              variant="secondary"
               onClick={() => navigate('/dashboard')}
               disabled={submitting}
             >
               Cancelar
-            </button>
-            <button 
-              type="submit" 
-              className="btn-primary"
+            </Button>
+            <Button 
+              type="submit"
+              variant="primary"
               disabled={submitting}
             >
               {submitting ? 'Creando reserva...' : 'Crear Reserva'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

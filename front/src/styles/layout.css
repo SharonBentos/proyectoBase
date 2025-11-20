@@ -1,5 +1,17 @@
+/* ============================================
+   LAYOUT - Estructura general y navbar
+   ============================================ */
+
+/* Layout principal */
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar */
 .navbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary-gradient);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
@@ -101,14 +113,14 @@
 
 .logout-button:hover {
   background-color: white;
-  color: #667eea;
+  color: var(--primary-color);
 }
 
 @media (max-width: 900px) {
   .navbar-container {
     flex-wrap: wrap;
     height: auto;
-    padding: 15px 20px;
+    padding: 10px 20px;
   }
 
   .navbar-menu {
@@ -116,32 +128,11 @@
     justify-content: flex-start;
     flex-wrap: wrap;
     margin-top: 10px;
-    gap: 5px;
-  }
-
-  .navbar-link {
-    font-size: 13px;
-    padding: 6px 12px;
   }
 
   .navbar-user {
-    margin-top: 10px;
     width: 100%;
     justify-content: space-between;
-  }
-}
-
-@media (max-width: 600px) {
-  .navbar-brand {
-    font-size: 20px;
-  }
-
-  .user-info {
-    font-size: 12px;
-  }
-
-  .logout-button {
-    padding: 6px 12px;
-    font-size: 12px;
+    margin-top: 10px;
   }
 }

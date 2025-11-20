@@ -1,0 +1,60 @@
+/* ============================================
+   VARIABLES GLOBALES
+   ============================================ */
+
+:root {
+  /* Colores principales */
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --primary-color: #667eea;
+  --primary-dark: #764ba2;
+  
+  /* Colores de estado */
+  --success-color: #28a745;
+  --success-bg: #d4edda;
+  --success-border: #c3e6cb;
+  
+  --warning-color: #856404;
+  --warning-bg: #fff3cd;
+  --warning-border: #ffc107;
+  
+  --error-color: #721c24;
+  --error-bg: #f8d7da;
+  --error-border: #dc3545;
+  
+  --info-color: #004085;
+  --info-bg: #d1ecf1;
+  --info-border: #17a2b8;
+  
+  /* Colores de texto */
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-muted: #999;
+  
+  /* Fondos */
+  --bg-page: #f5f7fa;
+  --bg-card: #ffffff;
+  --bg-hover: #f8f9ff;
+  --bg-disabled: #f5f5f5;
+  
+  /* Bordes */
+  --border-color: #e0e0e0;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  
+  /* Sombras */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-hover: 0 8px 20px rgba(102, 126, 234, 0.2);
+  
+  /* Espaciado */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Transiciones */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}

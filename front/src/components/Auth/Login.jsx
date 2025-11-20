@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import './Login.css';
+import { Alert, Button } from '../Common';
 
 const Login = () => {
   const [correo, setCorreo] = useState('');
@@ -39,14 +39,15 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="auth-logo">🏫</div>
           <h1>Sistema de Reserva de Salas</h1>
           <p>Universidad Católica del Uruguay</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="correo">Correo electrónico</label>
             <input
@@ -74,21 +75,22 @@ const Login = () => {
           </div>
 
           {error && (
-            <div className="error-message">
+            <Alert type="error">
               {error}
-            </div>
+            </Alert>
           )}
 
-          <button 
-            type="submit" 
-            className="login-button"
+          <Button 
+            type="submit"
+            variant="primary"
+            fullWidth
             disabled={loading}
           >
             {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-          </button>
+          </Button>
         </form>
 
-        <div className="login-footer">
+        <div className="auth-footer">
           <p>¿Problemas para acceder? Contacta a soporte técnico</p>
         </div>
       </div>

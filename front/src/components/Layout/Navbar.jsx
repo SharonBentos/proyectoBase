@@ -2,7 +2,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useState, useEffect } from 'react';
 import { obtenerSancionesPorParticipante } from '../../services/api';
-import './Navbar.css';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();

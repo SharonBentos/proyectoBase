@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { obtenerSalas } from '../../services/api';
 import { getTipoSalaColor } from '../../utils/helpers';
 import Layout from '../Layout/Layout';
-import './SalasDisponibles.css';
+import { Loading, EmptyState } from '../Common';
 
 const SalasDisponibles = () => {
   const { canAccessSala } = useAuth();
@@ -17,38 +17,23 @@ const SalasDisponibles = () => {
 
   const cargarSalas = async () => {
     try {
-      setLoading(true);
       const data = await obtenerSalas();
-      // Filtrar por permisos
-      const salasPermitidas = data.filter(sala => canAccessSala(sala.tipo_sala));
-      setSalas(salasPermitidas);
+      setSalas(data.filter(sala => canAccessSala(sala.tipo_sala)));
     } catch (error) {
-      console.error('Error al cargar salas:', error);
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const salasFiltradas = salas.filter(sala => {
-    if (filtro === 'todas') return true;
-    return sala.tipo_sala === filtro;
-  });
-
-  // Agrupar por edificio
-  const salasAgrupadas = salasFiltradas.reduce((acc, sala) => {
-    if (!acc[sala.edificio]) {
-      acc[sala.edificio] = [];
-    }
-    acc[sala.edificio].push(sala);
-    return acc;
-  }, {});
+  const salasFiltradas = salas.filter(sala => 
+    filtro === 'todas' ? true : sala.tipo_sala === filtro
+  );
 
   if (loading) {
     return (
       <Layout>
-        <div className="loading-container">
-          <div className="loading-spinner">Cargando...</div>
-        </div>
+        <Loading />
       </Layout>
     );
   }
@@ -72,14 +57,14 @@ const SalasDisponibles = () => {
             className={filtro === 'libre' ? 'filter-btn active' : 'filter-btn'}
             onClick={() => setFiltro('libre')}
           >
-            Uso Libre ({salas.filter(s => s.tipo_sala === 'libre').length})
+            Uso Libre
           </button>
           {salas.some(s => s.tipo_sala === 'posgrado') && (
             <button 
               className={filtro === 'posgrado' ? 'filter-btn active' : 'filter-btn'}
               onClick={() => setFiltro('posgrado')}
             >
-              Posgrado ({salas.filter(s => s.tipo_sala === 'posgrado').length})
+              Posgrado
             </button>
           )}
           {salas.some(s => s.tipo_sala === 'docente') && (
@@ -87,45 +72,28 @@ const SalasDisponibles = () => {
               className={filtro === 'docente' ? 'filter-btn active' : 'filter-btn'}
               onClick={() => setFiltro('docente')}
             >
-              Docentes ({salas.filter(s => s.tipo_sala === 'docente').length})
+              Docentes
             </button>
           )}
         </div>
 
-        {Object.keys(salasAgrupadas).map(edificio => (
-          <div key={edificio} className="edificio-section">
-            <h2 className="edificio-title">🏢 {edificio}</h2>
-            <div className="salas-grid">
-              {salasAgrupadas[edificio].map(sala => (
-                <div key={`${sala.nombre_sala}-${sala.edificio}`} className="sala-card">
-                  <div className="sala-header">
-                    <h3>{sala.nombre_sala}</h3>
-                    <span 
-                      className="tipo-badge"
-                      style={{ backgroundColor: getTipoSalaColor(sala.tipo_sala) }}
-                    >
-                      {sala.tipo_sala}
-                    </span>
-                  </div>
-                  <div className="sala-info">
-                    <div className="info-item">
-                      <span className="info-icon">👥</span>
-                      <span>Capacidad: {sala.capacidad}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-icon">📍</span>
-                      <span>{sala.edificio}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-
-        {salasFiltradas.length === 0 && (
-          <div className="empty-state">
-            <p>No hay salas disponibles con estos filtros</p>
+        {salasFiltradas.length === 0 ? (
+          <EmptyState message="No hay salas disponibles" icon="🚪" />
+        ) : (
+          <div className="salas-grid">
+            {salasFiltradas.map(sala => (
+              <div key={`${sala.nombre_sala}-${sala.edificio}`} className="sala-card">
+                <h3>{sala.nombre_sala}</h3>
+                <p>📍 {sala.edificio}</p>
+                <p>👥 Capacidad: {sala.capacidad}</p>
+                <span 
+                  className="tipo-badge"
+                  style={{ backgroundColor: getTipoSalaColor(sala.tipo_sala) }}
+                >
+                  {sala.tipo_sala}
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </div>
