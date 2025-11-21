@@ -1,9 +1,11 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 
-from app.db import DatabaseError
+from app.db import conn, DatabaseError
 from app.reservas_logic import crear_reserva, BusinessRuleError
 from app.schemas import ReservaCreate, ReservaResponse
+from app.routers import login
+
 
 load_dotenv()
 
@@ -16,6 +18,8 @@ app.include_router(salas.router)
 app.include_router(reservas.router)
 app.include_router(sanciones.router)
 app.include_router(reportes.router)
+app.include_router(login.router)
+
 
 
 @app.on_event("startup")

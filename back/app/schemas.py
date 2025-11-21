@@ -73,3 +73,10 @@ class SancionCreate(SancionBase):
 class SancionResponse(SancionBase):
     id_sancion: int
 
+class LoginRequest(BaseModel):
+    correo: str
+    password: str
+
+class LoginResponse(BaseModel):
+    correo: str
+    es_administrador: bool

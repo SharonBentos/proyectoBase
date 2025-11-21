@@ -9,6 +9,6 @@ services:
       MYSQL_USER: basesi
       MYSQL_PASSWORD: unsecreto
     ports:
-      - 3306:3306
+      - 3307:3306
     volumes:
       - ./mysql_db:/var/lib/mysql
