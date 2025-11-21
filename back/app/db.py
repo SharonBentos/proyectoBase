@@ -1,5 +1,8 @@
 import os
 from urllib.parse import urlparse
+from dotenv import load_dotenv
+load_dotenv()
+
 
 import pymysql
 from pymysql.err import MySQLError

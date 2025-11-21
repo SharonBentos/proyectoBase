@@ -2,7 +2,7 @@
 const API_BASE_URL = 'http://localhost:8000';
 
 // 🎭 MODO DESARROLLO: Cambiar a false cuando el backend esté listo
-const MOCK_MODE = true;
+const MOCK_MODE = false;
 
 // ============================================
 // HELPER FUNCTIONS
@@ -21,7 +21,7 @@ const handleResponse = async (response) => {
 // ============================================
 
 export const loginAPI = async (correo, password) => {
-  const response = await fetch(`${API_BASE_URL}/login`, {
+  const response = await fetch(`${API_BASE_URL}/login/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ correo, password })
@@ -213,7 +213,7 @@ export const cancelarReserva = async (idReserva) => {
     console.log('Reserva cancelada (MOCK):', idReserva);
     return { mensaje: 'Reserva cancelada correctamente (MOCK)' };
   }
-  const response = await fetch(`${API_BASE_URL}/reservas/${idReserva}`, {
+  const response = await fetch(`${API_BASE_URL}/reservas/${idReserva}/cancelar`, {
     method: 'DELETE'
   });
   return handleResponse(response);

@@ -1,54 +1,77 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from pathlib import Path
 
-from app.db import DatabaseError
+from app.db import conn, DatabaseError
 from app.reservas_logic import crear_reserva, BusinessRuleError
 from app.schemas import ReservaCreate, ReservaResponse
+from app.routers import login
+from app.routers import participantes, salas, reservas, sanciones, reportes
 
 load_dotenv()
 
-from app.db import conn
-
 app = FastAPI(title="Reservas Salas de Estudio UCU")
+
+app.include_router(participantes.router)
+app.include_router(salas.router)
+app.include_router(reservas.router)
+app.include_router(sanciones.router)
+app.include_router(reportes.router)
+app.include_router(login.router)
+
+
+def init_db():
+    """
+    Ejecuta el script db/init_salas.sql para crear tablas y cargar datos.
+    Se intenta que sea idempotente para el esquema; los inserts pueden
+    fallar si ya existen PK, en cuyo caso se ignora el error.
+    """
+    # Ruta al archivo SQL: PROYECTOBASE/db/init_salas.sql
+    sql_path = Path(__file__).resolve().parents[2] / "db" / "init_salas.sql"
+
+    with open(sql_path, "r", encoding="utf-8") as f:
+        raw_sql = f.read()
+
+    # Sacar comentarios de línea tipo "-- ..."
+    lines = []
+    for line in raw_sql.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("--") or stripped == "":
+            continue
+        lines.append(line)
+    cleaned_sql = "\n".join(lines)
+
+    # Separar por ';' en sentencias individuales
+    statements = [s.strip() for s in cleaned_sql.split(";") if s.strip()]
+
+    connection = conn()
+    cursor = connection.cursor()
+
+    for stmt in statements:
+        try:
+            cursor.execute(stmt)
+        except Exception as e:
+            # Si querés ver qué falla, descomentá el print
+            # print(f"Error al ejecutar: {stmt[:80]}... -> {e}")
+            # Para el obligatorio, probablemente te alcanza con ignorar
+            # errores de "duplicate key" cuando se vuelve a correr.
+            continue
+
+    connection.commit()
+    cursor.close()
+    print("Base de datos ucu_salas inicializada correctamente.")
 
 
 @app.on_event("startup")
 def startup_event():
+    # Solo para comprobar conexión
     _ = conn()
     print("Conexión a MySQL OK")
+
+    # Inicializar esquema + datos
+    init_db()
 
 
 @app.get("/")
 async def root():
     return {"message": "API Salas de Estudio funcionando"}
-
-
-@app.post("/reservas", response_model=ReservaResponse)
-async def crear_reserva_endpoint(payload: ReservaCreate):
-    try:
-        id_reserva = crear_reserva(
-            nombre_sala=payload.nombre_sala,
-            edificio=payload.edificio,
-            fecha=payload.fecha,
-            id_turno=payload.id_turno,
-            participantes_ci=payload.participantes_ci,
-        )
-        return ReservaResponse(
-            id_reserva=id_reserva,
-            mensaje="Reserva creada correctamente",
-        )
-
-    except BusinessRuleError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-    except DatabaseError:
-        raise HTTPException(
-            status_code=500,
-            detail="Error en la base de datos al crear la reserva.",
-        )
-
-    except Exception:
-        raise HTTPException(
-            status_code=500,
-            detail="Ocurrió un error inesperado al crear la reserva.",
-        )

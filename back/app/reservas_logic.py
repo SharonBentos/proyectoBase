@@ -192,3 +192,105 @@ def crear_reserva(nombre_sala: str,
         execute(sql_part, (ci, id_reserva))
 
     return id_reserva
+
+
+def cancelar_reserva(id_reserva: int) -> None:
+    # Solo se puede cancelar si está activa
+    sql_check = "SELECT estado FROM reserva WHERE id_reserva = %s"
+    row = query_one(sql_check, (id_reserva,))
+    if not row:
+        raise BusinessRuleError("Reserva no encontrada")
+    
+    if row["estado"] != "activa":
+        raise BusinessRuleError("Solo se pueden cancelar reservas activas")
+
+    execute("UPDATE reserva SET estado = 'cancelada' WHERE id_reserva = %s", (id_reserva,))
+
+
+def marcar_asistencia(id_reserva: int, ci_participante: str, asistencia: bool) -> None:
+    # Verificar que la reserva exista y esté activa (o finalizada recientemente? asumimos activa)
+    # Permitimos marcar asistencia incluso si ya pasó el turno, siempre que no esté cancelada
+    sql_check = "SELECT estado FROM reserva WHERE id_reserva = %s"
+    row = query_one(sql_check, (id_reserva,))
+    if not row:
+        raise BusinessRuleError("Reserva no encontrada")
+    
+    if row["estado"] == "cancelada":
+        raise BusinessRuleError("No se puede marcar asistencia en una reserva cancelada")
+
+    # Verificar que el participante esté en la reserva
+    sql_part = "SELECT 1 FROM reserva_participante WHERE id_reserva = %s AND ci_participante = %s"
+    if not query_one(sql_part, (id_reserva, ci_participante)):
+        raise BusinessRuleError("El participante no corresponde a esta reserva")
+
+    val = 1 if asistencia else 0
+    execute(
+        "UPDATE reserva_participante SET asistencia = %s WHERE id_reserva = %s AND ci_participante = %s",
+        (val, id_reserva, ci_participante)
+    )
+
+
+def procesar_inasistencias() -> dict:
+    """
+    Busca reservas pasadas que sigan 'activas'.
+    Si asistencia = 0 -> Sanción (2 meses).
+    Actualiza estado reserva a 'finalizada' o 'sin asistencia'.
+    """
+    # 1. Buscar reservas 'activas' cuya fecha < HOY (o fecha=HOY y hora_fin < NOW, simplificamos a fecha < HOY para el job diario)
+    # Para demo, usaremos fecha <= HOY para que procese todo lo pendiente
+    
+    today = date.today()
+    
+    sql_reservas = """
+        SELECT id_reserva, fecha
+        FROM reserva
+        WHERE estado = 'activa' AND fecha < %s
+    """
+    reservas = query_all(sql_reservas, (today,))
+    
+    sanciones_creadas = 0
+    reservas_procesadas = 0
+
+    for res in reservas:
+        id_reserva = res["id_reserva"]
+        fecha_reserva = res["fecha"]
+        
+        # Obtener participantes
+        sql_parts = """
+            SELECT ci_participante, asistencia
+            FROM reserva_participante
+            WHERE id_reserva = %s
+        """
+        participantes = query_all(sql_parts, (id_reserva,))
+        
+        asistieron_todos = True
+        ninguno_asistio = True
+        
+        for p in participantes:
+            if p["asistencia"] == 0:
+                asistieron_todos = False
+                # Crear sanción
+                # 2 meses de sanción
+                fecha_inicio = today
+                fecha_fin = today + timedelta(days=60)
+                
+                # Verificar si ya tiene sanción por esta reserva? 
+                # Simplificación: Insertar sanción directa
+                sql_sancion = """
+                    INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin)
+                    VALUES (%s, %s, %s)
+                """
+                execute(sql_sancion, (p["ci_participante"], fecha_inicio, fecha_fin))
+                sanciones_creadas += 1
+            else:
+                ninguno_asistio = False
+
+        # Actualizar estado reserva
+        nuevo_estado = "finalizada"
+        if ninguno_asistio:
+            nuevo_estado = "sin asistencia"
+        
+        execute("UPDATE reserva SET estado = %s WHERE id_reserva = %s", (nuevo_estado, id_reserva))
+        reservas_procesadas += 1
+
+    return {"reservas_procesadas": reservas_procesadas, "sanciones_creadas": sanciones_creadas}
