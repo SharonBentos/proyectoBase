@@ -54,7 +54,7 @@ def marcar_asistencia_endpoint(id_reserva: int, ci_participante: str = Query(...
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/", response_model=List[dict]) # Simplificado, idealmente usar schema
+@router.get("/", response_model=List[dict]) 
 def listar_reservas(ci: str = Query(None)):
     try:
         sql = """

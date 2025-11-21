@@ -73,14 +73,7 @@ def reservas_por_carrera():
 @router.get("/ocupacion-por-edificio")
 def ocupacion_por_edificio():
     try:
-        # Porcentaje de ocupación = (Horas reservadas / Horas totales disponibles) * 100
-        # Simplificación: Cantidad de reservas por edificio
-        # Para porcentaje real necesitaríamos un rango de fechas.
-        # Vamos a devolver cantidad absoluta por ahora o porcentaje sobre el total de reservas.
-        
-        # Letra dice "Porcentaje de ocupación de salas por edificio".
-        # Asumiremos % sobre el total de reservas del sistema.
-        
+
         sql = """
             SELECT edificio, 
                    COUNT(*) AS reservas_edificio,
@@ -96,8 +89,7 @@ def ocupacion_por_edificio():
 @router.get("/reservas-vs-asistencia")
 def reservas_vs_asistencia():
     try:
-        # Cantidad de reservas y asistencias de profesores y alumnos (grado y posgrado)
-        # Desglosado por rol y tipo de programa
+
         sql = """
             SELECT 
                 ppa.rol,
@@ -117,7 +109,6 @@ def reservas_vs_asistencia():
 @router.get("/cantidad-sanciones")
 def cantidad_sanciones():
     try:
-        # Cantidad de sanciones para profesores y alumnos (grado y posgrado)
         sql = """
             SELECT 
                 ppa.rol,
@@ -136,10 +127,6 @@ def cantidad_sanciones():
 @router.get("/efectividad-reservas")
 def efectividad_reservas():
     try:
-        # Porcentaje de reservas efectivamente utilizadas vs. canceladas/no asistidas
-        # Utilizada = finalizada (y asumimos asistencia > 0 o estado 'finalizada' implica uso)
-        # Cancelada = 'cancelada'
-        # No asistida = 'sin asistencia'
         
         sql = """
             SELECT 
@@ -154,7 +141,6 @@ def efectividad_reservas():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Consultas extra sugeridas
 @router.get("/top-usuarios-frecuentes")
 def top_usuarios_frecuentes():
     try:
@@ -188,7 +174,6 @@ def horas_pico():
 @router.get("/salas-sin-uso")
 def salas_sin_uso():
     try:
-        # Salas que nunca han sido reservadas
         sql = """
             SELECT s.nombre_sala, s.edificio
             FROM sala s
