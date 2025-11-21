@@ -18,8 +18,8 @@ const MisReservas = () => {
 
   const cargarReservas = async () => {
     try {
-      const todasReservas = await obtenerReservas();
-      setReservas(todasReservas.filter(r => r.participantes_ci?.includes(user?.ci)));
+      const misReservas = await obtenerReservas(user?.ci);
+      setReservas(misReservas);
     } catch (error) {
       mostrarMensaje('error', 'Error al cargar las reservas');
     } finally {

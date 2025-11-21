@@ -80,3 +80,8 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     correo: str
     es_administrador: bool
+    ci: str
+    nombre: str
+    apellido: str
+    rol: str
+    tipo_programa: str

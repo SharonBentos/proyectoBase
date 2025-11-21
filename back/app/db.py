@@ -1,26 +1,22 @@
 import os
+from pathlib import Path
 from urllib.parse import urlparse
 from dotenv import load_dotenv
-load_dotenv()
 
+# Cargar .env desde la carpeta back
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 import pymysql
 from pymysql.err import MySQLError
-
-_conn = None
 
 
 class DatabaseError(Exception):
     pass
 
 
-def conn():
-
-    global _conn
-
-    if _conn is not None and _conn.open:
-        return _conn
-
+def get_connection():
+    """Crea una nueva conexión a la base de datos"""
     raw_url = os.getenv("DATABASE_URL")
     if not raw_url:
         raise DatabaseError(
@@ -35,7 +31,7 @@ def conn():
     assert not isinstance(url.path, bytes)
 
     try:
-        _conn = pymysql.connect(
+        connection = pymysql.connect(
             host=url.hostname,
             user=url.username,
             password=url.password or "",
@@ -44,59 +40,77 @@ def conn():
             cursorclass=pymysql.cursors.DictCursor,
             autocommit=False,
         )
+        return connection
     except MySQLError as e:
         raise DatabaseError(f"Error conectando a la base de datos: {e}") from e
 
-    return _conn
+
+def conn():
+    """Alias para compatibilidad con código existente"""
+    return get_connection()
 
 
 
 def query_all(sql: str, params: tuple | dict | None = None):
-
+    connection = None
     try:
-        cn = conn()
-        with cn.cursor() as cur:
+        connection = get_connection()
+        with connection.cursor() as cur:
             cur.execute(sql, params or ())
             rows = cur.fetchall()
         return rows
     except MySQLError as e:
         raise DatabaseError(f"Error al ejecutar query_all: {e}") from e
+    finally:
+        if connection:
+            connection.close()
 
 
 def query_one(sql: str, params: tuple | dict | None = None):
-
+    connection = None
     try:
-        cn = conn()
-        with cn.cursor() as cur:
+        connection = get_connection()
+        with connection.cursor() as cur:
             cur.execute(sql, params or ())
             row = cur.fetchone()
         return row
     except MySQLError as e:
         raise DatabaseError(f"Error al ejecutar query_one: {e}") from e
+    finally:
+        if connection:
+            connection.close()
 
 
 def execute(sql: str, params: tuple | dict | None = None) -> int:
-
-    cn = conn()
+    connection = None
     try:
-        with cn.cursor() as cur:
+        connection = get_connection()
+        with connection.cursor() as cur:
             affected = cur.execute(sql, params or ())
-        cn.commit()
+        connection.commit()
         return affected
     except MySQLError as e:
-        cn.rollback()
+        if connection:
+            connection.rollback()
         raise DatabaseError(f"Error al ejecutar execute: {e}") from e
+    finally:
+        if connection:
+            connection.close()
 
 
 def insert_and_get_id(sql: str, params: tuple | dict | None = None) -> int:
-
-    cn = conn()
+    connection = None
     try:
-        with cn.cursor() as cur:
+        connection = get_connection()
+        with connection.cursor() as cur:
             cur.execute(sql, params or ())
             last_id = cur.lastrowid
-        cn.commit()
+        connection.commit()
         return int(last_id)
     except MySQLError as e:
-        cn.rollback()
+        if connection:
+            connection.rollback()
         raise DatabaseError(f"Error al ejecutar insert_and_get_id: {e}") from e
+    finally:
+        if connection:
+            connection.close()

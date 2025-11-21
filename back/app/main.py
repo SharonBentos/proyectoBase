@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
 from app.db import conn, DatabaseError
@@ -11,6 +12,15 @@ from app.routers import participantes, salas, reservas, sanciones, reportes
 load_dotenv()
 
 app = FastAPI(title="Reservas Salas de Estudio UCU")
+
+# Configurar CORS - Permitir todas las peticiones desde el frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite todos los orígenes (desarrollo)
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos los métodos (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Permite todos los headers
+)
 
 app.include_router(participantes.router)
 app.include_router(salas.router)
@@ -47,26 +57,31 @@ def init_db():
     connection = conn()
     cursor = connection.cursor()
 
-    for stmt in statements:
-        try:
-            cursor.execute(stmt)
-        except Exception as e:
-            # Si querés ver qué falla, descomentá el print
-            # print(f"Error al ejecutar: {stmt[:80]}... -> {e}")
-            # Para el obligatorio, probablemente te alcanza con ignorar
-            # errores de "duplicate key" cuando se vuelve a correr.
-            continue
+    try:
+        for stmt in statements:
+            try:
+                cursor.execute(stmt)
+            except Exception as e:
+                # Si querés ver qué falla, descomentá el print
+                # print(f"Error al ejecutar: {stmt[:80]}... -> {e}")
+                # Para el obligatorio, probablemente te alcanza con ignorar
+                # errores de "duplicate key" cuando se vuelve a correr.
+                continue
 
-    connection.commit()
-    cursor.close()
+        connection.commit()
+    finally:
+        cursor.close()
+        connection.close()
+    
     print("Base de datos ucu_salas inicializada correctamente.")
 
 
 @app.on_event("startup")
 def startup_event():
     # Solo para comprobar conexión
-    _ = conn()
+    test_conn = conn()
     print("Conexión a MySQL OK")
+    test_conn.close()
 
     # Inicializar esquema + datos
     init_db()
