@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS participante (
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    password VARCHAR(255),
     PRIMARY KEY (ci)
 );
 
@@ -155,11 +154,11 @@ INSERT INTO participante (ci, nombre, apellido, email) VALUES
 
 -- Login (contraseñas de ejemplo; se recomienda hashear en producción)
 INSERT INTO login (correo, password, es_administrador) VALUES
-  ('ana@uni.edu','p1', 0),('bruno@uni.edu','p2', 0),('carla@uni.edu','p3', 0),('diego@uni.edu','p4', 0),
+  ('an@uni.edu','p1', 1),('bruno@uni.edu','p2', 0),('carla@uni.edu','p3', 0),('diego@uni.edu','p4', 0),
   ('elena@uni.edu','p5', 0),('fabio@uni.edu','p6', 0),('gina@uni.edu','p7', 0),('hugo@uni.edu','p8', 0),
   ('ivan@uni.edu','p9', 0),('julia@uni.edu','p10', 0),('kevin@uni.edu','p11', 0),('laura@uni.edu','p12', 0),
   ('marta@uni.edu','p13',0),('nico@uni.edu','p14',0),('olga@uni.edu','p15',0),('pablo@uni.edu','p16',0),
-  ('quimey@uni.edu','p17',0),('rocio@uni.edu','p18',0),('sergio@uni.edu','p19',0),('tania@uni.edu','p20',0);
+  ('quimey@uni.edu','p17',0),('rocio@uni.edu','p18',0),('sergio@uni.edu','p19',0),('tania@uni.edu','p20',0), ('admin@uni.edu','a1',1);
 
 -- Participante-programa (ejemplos)
 INSERT INTO participante_programa_academico (id_alumno_programa, ci_participante, nombre_programa, rol) VALUES

@@ -36,7 +36,7 @@ def get_connection():
             user=url.username,
             password=url.password or "",
             database=url.path.lstrip("/"),
-            port=url.port or 3306,
+            port=url.port or 3307,
             cursorclass=pymysql.cursors.DictCursor,
             autocommit=False,
         )
