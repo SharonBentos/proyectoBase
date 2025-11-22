@@ -23,14 +23,10 @@ const Dashboard = () => {
 
   const cargarDatos = async () => {
     try {
-      const [todasReservas, sancionesData] = await Promise.all([
-        obtenerReservas(),
+      const [misReservas, sancionesData] = await Promise.all([
+        user?.ci ? obtenerReservas(user.ci) : Promise.resolve([]),
         user?.ci ? obtenerSancionesPorParticipante(user.ci) : Promise.resolve([])
       ]);
-
-      const misReservas = todasReservas.filter(r => 
-        r.participantes_ci?.includes(user?.ci)
-      );
       
       setReservas(misReservas.slice(0, 5));
       
@@ -39,7 +35,7 @@ const Dashboard = () => {
       );
       setSanciones(sancionesActivas);
 
-      // Calcular estadísticas
+      // Calcular estadísticas - misReservas ya viene filtrado del backend por CI
       const activas = misReservas.filter(r => r.estado === 'activa').length;
       const estaSemana = misReservas.filter(r => 
         isInCurrentWeek(r.fecha) && r.estado === 'activa'

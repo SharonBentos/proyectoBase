@@ -71,6 +71,13 @@ def listar_reservas(ci: str = Query(None)):
         
         sql += " ORDER BY r.fecha DESC, r.id_turno DESC"
         
-        return query_all(sql, tuple(params))
+        reservas = query_all(sql, tuple(params))
+        
+        # Convertir objetos date a string para JSON
+        for reserva in reservas:
+            if 'fecha' in reserva and reserva['fecha']:
+                reserva['fecha'] = str(reserva['fecha'])
+        
+        return reservas
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e))

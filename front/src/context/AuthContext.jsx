@@ -24,31 +24,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (correo, password) => {
     try {
-      // MODO DESARROLLO: Datos mock mientras el backend implementa /login
-      const usuariosMock = {
-        'ana@uni.edu': { ci: '101', nombre: 'Ana', apellido: 'Pérez', correo: 'ana@uni.edu', es_administrador: false, rol: 'alumno', tipo_programa: 'grado' },
-        'marta@uni.edu': { ci: '113', nombre: 'Marta', apellido: 'Gómez', correo: 'marta@uni.edu', es_administrador: false, rol: 'docente', tipo_programa: 'grado' },
-        'olga@uni.edu': { ci: '115', nombre: 'Olga', apellido: 'Santos', correo: 'olga@uni.edu', es_administrador: false, rol: 'alumno', tipo_programa: 'posgrado' },
-        'admin@uni.edu': { ci: '999', nombre: 'Admin', apellido: 'Sistema', correo: 'admin@uni.edu', es_administrador: true, rol: 'alumno', tipo_programa: 'grado' }
-      };
-
-      // Simular delay de red
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      if (usuariosMock[correo] && (password === 'p1' || password === 'p13' || password === 'p15' || password === 'admin123')) {
-        const userData = usuariosMock[correo];
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        return { success: true };
-      } else {
-        throw new Error('Credenciales inválidas');
-      }
-
-      // PRODUCCIÓN: Descomentar cuando el backend tenga /login
-      // const userData = await loginAPI(correo, password);
-      // setUser(userData);
-      // localStorage.setItem('user', JSON.stringify(userData));
-      // return { success: true };
+      // Llamar al backend real
+      const userData = await loginAPI(correo, password);
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
     }
