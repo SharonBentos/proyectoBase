@@ -32,9 +32,9 @@
 }
 
 .filter-btn.active {
-  background: var(--primary-gradient);
+  background: #e74c3c;
   color: white;
-  border-color: var(--primary-color);
+  border-color: #e74c3c;
 }
 
 .reservas-grid {

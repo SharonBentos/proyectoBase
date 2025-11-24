@@ -11,8 +11,8 @@
 
 /* Navbar */
 .navbar {
-  background: var(--primary-gradient);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: #e74c3c;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -21,17 +21,20 @@
 .navbar-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
+  height: 64px;
 }
 
 .navbar-brand {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 600;
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .navbar-brand a {
@@ -46,24 +49,25 @@
 
 .navbar-menu {
   display: flex;
-  gap: 10px;
+  gap: 4px;
   align-items: center;
   flex: 1;
   justify-content: center;
 }
 
 .navbar-link {
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   padding: 8px 16px;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
 .navbar-link:hover {
   background-color: rgba(255, 255, 255, 0.15);
+  color: white;
 }
 
 .navbar-link.disabled {
@@ -79,11 +83,11 @@
 .navbar-user {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
 }
 
 .user-info {
-  color: white;
+  color: rgba(255, 255, 255, 0.95);
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -91,29 +95,30 @@
 }
 
 .admin-badge {
-  background-color: #ffd700;
-  color: #333;
-  padding: 3px 8px;
+  background-color: rgba(255, 255, 255, 0.25);
+  color: white;
+  padding: 4px 10px;
   border-radius: 12px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .logout-button {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
   color: white;
-  border: 2px solid white;
-  padding: 8px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
   border-radius: 6px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .logout-button:hover {
   background-color: white;
-  color: var(--primary-color);
+  color: #e74c3c;
+  border-color: white;
 }
 
 @media (max-width: 900px) {

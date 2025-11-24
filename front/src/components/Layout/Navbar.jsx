@@ -42,7 +42,7 @@ const Navbar = () => {
       <div className="navbar-container">
         <div className="navbar-brand">
           <Link to={isAdmin() ? '/admin' : '/dashboard'}>
-            🏛️ UCU Salas
+            UCU Salas
           </Link>
         </div>
 
@@ -51,39 +51,39 @@ const Navbar = () => {
             // Menú de Administrador
             <>
               <Link to="/admin" className="navbar-link">
-                📊 Dashboard
+                Dashboard
               </Link>
               <Link to="/admin/participantes" className="navbar-link">
-                👥 Participantes
+                Participantes
               </Link>
               <Link to="/admin/salas" className="navbar-link">
-                🚪 Salas
+                Salas
               </Link>
               <Link to="/admin/reservas" className="navbar-link">
-                📅 Reservas
+                Reservas
               </Link>
               <Link to="/admin/sanciones" className="navbar-link">
-                ⚠️ Sanciones
+                Sanciones
               </Link>
             </>
           ) : (
             // Menú de Usuario Normal
             <>
               <Link to="/dashboard" className="navbar-link">
-                🏠 Inicio
+                Inicio
               </Link>
               <Link to="/mis-reservas" className="navbar-link">
-                📋 Mis Reservas
+                Mis Reservas
               </Link>
               <Link 
                 to="/nueva-reserva" 
                 className={`navbar-link ${tieneSancion ? 'disabled' : ''}`}
                 onClick={handleNuevaReserva}
               >
-                ➕ Nueva Reserva
+                Nueva Reserva
               </Link>
               <Link to="/salas" className="navbar-link">
-                🚪 Salas
+                Salas
               </Link>
             </>
           )}

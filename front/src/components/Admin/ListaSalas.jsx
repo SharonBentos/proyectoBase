@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { obtenerSalas, eliminarSala } from '../../../services/api';
-import Layout from '../../Layout/Layout';
-import '../Participantes/ListaParticipantes.css';
+import { useState, useEffect } from "react";
+import { obtenerSalas, eliminarSala } from "../../services/api";
+import Layout from "../Layout/Layout";
+import './ListaParticipantes.css';
 
 const ListaSalas = () => {
   const [salas, setSalas] = useState([]);

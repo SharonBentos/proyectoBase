@@ -7,6 +7,13 @@
   margin: 0 auto;
 }
 
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 32px;
+}
+
 /* Sección de sanciones activas */
 .alert h3 {
   margin: 0 0 8px 0;
@@ -28,27 +35,37 @@
 .stat-card {
   background: white;
   border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 28px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   gap: 20px;
+  transition: all 0.2s;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
 }
 
 .stat-icon {
-  font-size: 48px;
+  font-size: 40px;
+  opacity: 0.9;
 }
 
 .stat-content h3 {
-  font-size: 36px;
-  color: var(--primary-color);
+  font-size: 32px;
+  color: var(--text-primary);
   margin: 0 0 4px 0;
+  font-weight: 600;
 }
 
 .stat-content p {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
+  font-weight: 500;
 }
 
 .stat-content small {
@@ -60,44 +77,57 @@
 .recent-reservations {
   background: white;
   border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .section-header h2 {
-  font-size: 24px;
+  font-size: 20px;
   color: var(--text-primary);
   margin: 0;
+  font-weight: 600;
 }
 
 .view-all-link {
   font-size: 14px;
   color: var(--primary-color);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.view-all-link:hover {
+  color: var(--primary-dark);
 }
 
 .reservations-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .reservation-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  background: var(--bg-hover);
+  padding: 16px 18px;
+  background: var(--bg-page);
   border-radius: 8px;
-  border-left: 4px solid var(--primary-color);
+  border-left: 3px solid var(--primary-color);
+  transition: all 0.2s;
+}
+
+.reservation-item:hover {
+  background: var(--bg-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 .reservation-info h3 {
@@ -117,22 +147,21 @@
   border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
-  color: white;
 }
 
 .estado-activa {
-  background: var(--success-bg);
-  color: var(--success-color);
+  background: #27ae60;
+  color: white;
 }
 
 .estado-finalizada {
-  background: var(--bg-disabled);
-  color: var(--text-muted);
+  background: #95a5a6;
+  color: white;
 }
 
 .estado-cancelada {
-  background: var(--error-bg);
-  color: var(--error-color);
+  background: #e74c3c;
+  color: white;
 }
 
 @media (max-width: 768px) {

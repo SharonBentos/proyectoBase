@@ -4,48 +4,48 @@
 
 :root {
   /* Colores principales */
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --primary-color: #667eea;
-  --primary-dark: #764ba2;
+  --primary-color: #e74c3c;
+  --primary-dark: #c0392b;
+  --primary-light: #f5b7b1;
   
   /* Colores de estado */
-  --success-color: #28a745;
-  --success-bg: #d4edda;
-  --success-border: #c3e6cb;
+  --success-color: #27ae60;
+  --success-bg: #d5f4e6;
+  --success-border: #a9dfbf;
   
-  --warning-color: #856404;
-  --warning-bg: #fff3cd;
-  --warning-border: #ffc107;
+  --warning-color: #f39c12;
+  --warning-bg: #fcf3cf;
+  --warning-border: #f9e79f;
   
-  --error-color: #721c24;
-  --error-bg: #f8d7da;
-  --error-border: #dc3545;
+  --error-color: #e74c3c;
+  --error-bg: #fadbd8;
+  --error-border: #f5b7b1;
   
-  --info-color: #004085;
-  --info-bg: #d1ecf1;
-  --info-border: #17a2b8;
+  --info-color: #3498db;
+  --info-bg: #d6eaf8;
+  --info-border: #aed6f1;
   
   /* Colores de texto */
-  --text-primary: #333;
-  --text-secondary: #666;
-  --text-muted: #999;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --text-muted: #95a5a6;
   
   /* Fondos */
-  --bg-page: #f5f7fa;
+  --bg-page: #f8f9fa;
   --bg-card: #ffffff;
-  --bg-hover: #f8f9ff;
-  --bg-disabled: #f5f5f5;
+  --bg-hover: #f1f2f6;
+  --bg-disabled: #ecf0f1;
   
   /* Bordes */
-  --border-color: #e0e0e0;
+  --border-color: #dfe6e9;
   --border-radius: 8px;
   --border-radius-lg: 12px;
   
   /* Sombras */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --shadow-hover: 0 8px 20px rgba(102, 126, 234, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 6px 16px rgba(231, 76, 60, 0.15);
   
   /* Espaciado */
   --spacing-xs: 4px;

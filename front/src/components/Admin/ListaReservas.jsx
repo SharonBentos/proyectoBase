@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { obtenerReservas, cancelarReserva } from '../../../services/api';
-import { formatDate, formatTime, getEstadoColor } from '../../../utils/helpers';
-import Layout from '../../Layout/Layout';
-import '../Participantes/ListaParticipantes.css';
+import { useState, useEffect } from "react";
+import { obtenerReservas, cancelarReserva } from "../../services/api";
+import { formatDate, formatTime, getEstadoColor } from "../../utils/helpers";
+import Layout from "../Layout/Layout";
+import './ListaParticipantes.css';
 
 const ListaReservas = () => {
   const [reservas, setReservas] = useState([]);

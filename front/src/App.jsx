@@ -14,12 +14,10 @@ import SalasDisponibles from './components/User/SalasDisponibles';
 
 // Admin Components
 import AdminDashboard from './components/Admin/AdminDashboard';
-import ListaParticipantes from './components/Admin/Participantes/ListaParticipantes';
-import ListaSalas from './components/Admin/Salas/ListaSalas';
-import ListaReservas from './components/Admin/Reservas/ListaReservas';
-import ListaSanciones from './components/Admin/Sanciones/ListaSanciones';
-
-import './App.css';
+import ListaParticipantes from './components/Admin/ListaParticipantes';
+import ListaSalas from './components/Admin/ListaSalas';
+import ListaReservas from './components/Admin/ListaReservas';
+import ListaSanciones from './components/Admin/ListaSanciones';
 
 function App() {
   return (
