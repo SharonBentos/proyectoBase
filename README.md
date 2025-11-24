@@ -84,4 +84,38 @@ el archivo.
 
 #### Frontend
 
-Todavía no hay :v
+El proyecto de frontend está creado con React + Vite. 
+
+Antes de cualquier paso, se debe entrar al directorio `front` e instalar las dependencias:
+
+```bash
+npm install
+```
+
+Para desarrollo local, se debe correr:
+
+```bash
+npm run dev
+```
+
+Este comando levantará el servidor en el puerto `5173` por defecto y automáticamente recargará el proyecto si algún archivo es cambiado.
+
+---
+
+## Comandos rápidos para desarrollo local (Windows PowerShell)
+
+```powershell
+# 1. Base de datos (MySQL en Docker)
+cd c:\ReposUCU\proyectoBase\db ; docker-compose up -d
+
+# 2. Frontend (React + Vite)
+cd c:\ReposUCU\proyectoBase\front ; npm i (si es la primera vez) ; npm run dev
+
+# 3. Backend (FastAPI)
+cd c:\ReposUCU\proyectoBase\back ; $env:PYTHONPATH = "c:\ReposUCU\proyectoBase\back" ; python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+**Puertos:**
+- Base de datos: `3307` (MySQL)
+- Frontend: `5173` (http://localhost:5173)
+- Backend: `8000` (http://127.0.0.1:8000)

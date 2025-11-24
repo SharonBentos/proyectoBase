@@ -4,11 +4,11 @@ services:
     container_name: obligatorio-db-local
     environment:
       MYSQL_ROOT_PASSWORD: unsecreto
-
-      MYSQL_DATABASE: basesi
+      MYSQL_DATABASE: ucu_salas
       MYSQL_USER: basesi
       MYSQL_PASSWORD: unsecreto
     ports:
       - 3307:3306
     volumes:
       - ./mysql_db:/var/lib/mysql
+      - ./init_salas.sql:/docker-entrypoint-initdb.d/init_salas.sql

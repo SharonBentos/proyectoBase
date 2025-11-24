@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { obtenerSanciones, eliminarSancion, obtenerParticipantes } from '../../../services/api';
-import { formatDate } from '../../../utils/helpers';
-import Layout from '../../Layout/Layout';
-import '../Participantes/ListaParticipantes.css';
+import { useState, useEffect } from "react";
+import { obtenerSanciones, eliminarSancion, obtenerParticipantes } from "../../services/api";
+import { formatDate } from "../../utils/helpers";
+import Layout from "../Layout/Layout";
+import './ListaParticipantes.css';
 
 const ListaSanciones = () => {
   const [sanciones, setSanciones] = useState([]);

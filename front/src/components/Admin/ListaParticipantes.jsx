@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { obtenerParticipantes, eliminarParticipante } from '../../../services/api';
-import Layout from '../../Layout/Layout';
+import { useState, useEffect } from "react";
+import { obtenerParticipantes, eliminarParticipante } from "../../services/api";
+import Layout from "../Layout/Layout";
 import './ListaParticipantes.css';
 
 const ListaParticipantes = () => {
