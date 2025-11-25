@@ -296,10 +296,8 @@ export const obtenerTurnos = async () => {
 // ============================================
 
 export const obtenerEdificios = async () => {
-  // Obtener edificios únicos desde las salas disponibles
-  const salas = await obtenerSalas();
-  const edificiosUnicos = [...new Set(salas.map((sala) => sala.edificio))];
-  return edificiosUnicos.map((edificio) => ({ nombre_edificio: edificio }));
+  const response = await fetch(`${API_BASE_URL}/edificios/`);
+  return handleResponse(response);
 };
 
 export const obtenerProgramas = async () => {

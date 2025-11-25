@@ -7,7 +7,7 @@ from app.db import DatabaseError, get_connection
 from app.reservas_logic import crear_reserva, BusinessRuleError
 from app.schemas import ReservaCreate, ReservaResponse
 from app.routers import login
-from app.routers import participantes, salas, reservas, sanciones, metrics
+from app.routers import participantes, salas, reservas, sanciones, metrics, edificios
 
 load_dotenv()
 
@@ -28,6 +28,7 @@ app.include_router(reservas.router)
 app.include_router(sanciones.router)
 app.include_router(metrics.router)
 app.include_router(login.router)
+app.include_router(edificios.router)
 
 
 @app.on_event("startup")

@@ -4,12 +4,14 @@ import {
   eliminarSala,
   crearSala,
   actualizarSala,
+  obtenerEdificios,
 } from "../../services/api";
 import Layout from "../Layout/Layout";
 import "./ListaParticipantes.css";
 
 const ListaSalas = () => {
   const [salas, setSalas] = useState([]);
+  const [edificios, setEdificios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -23,7 +25,21 @@ const ListaSalas = () => {
 
   useEffect(() => {
     cargarSalas();
+    cargarEdificios();
   }, []);
+
+  const cargarEdificios = async () => {
+    try {
+      const data = await obtenerEdificios();
+      setEdificios(data);
+      if (data.length > 0) {
+        setFormData((prev) => ({ ...prev, edificio: data[0] }));
+      }
+    } catch (error) {
+      mostrarMensaje("error", "Error al cargar edificios");
+    }
+  };
+
 
   const cargarSalas = async () => {
     try {
@@ -192,16 +208,21 @@ const ListaSalas = () => {
                 </div>
                 <div className="form-group">
                   <label>Edificio *</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.edificio}
                     onChange={(e) =>
                       setFormData({ ...formData, edificio: e.target.value })
                     }
                     required
                     disabled={editando !== null}
-                    placeholder="Polifuncional"
-                  />
+                  >
+                    <option value="">Seleccione un edificio</option>
+                    {edificios.map((edificio) => (
+                      <option key={edificio} value={edificio}>
+                        {edificio}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="form-group">
                   <label>Capacidad *</label>
