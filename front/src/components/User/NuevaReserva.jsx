@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { 
-  obtenerSalas, 
-  obtenerTurnos, 
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import {
+  obtenerSalas,
+  obtenerTurnos,
   crearReserva,
-  obtenerParticipantes 
-} from '../../services/api';
-import { getTodayString } from '../../utils/helpers';
-import Layout from '../Layout/Layout';
-import { Alert, Loading, Button } from '../Common';
+  obtenerParticipantes,
+} from "../../services/api";
+import { getTodayString } from "../../utils/helpers";
+import Layout from "../Layout/Layout";
+import { Alert, Loading, Button } from "../Common";
 
 const NuevaReserva = () => {
   const { user, canAccessSala } = useAuth();
@@ -18,19 +18,19 @@ const NuevaReserva = () => {
   const [salas, setSalas] = useState([]);
   const [turnos, setTurnos] = useState([]);
   const [participantes, setParticipantes] = useState([]);
-  const [emailInput, setEmailInput] = useState('');
-  
+  const [emailInput, setEmailInput] = useState("");
+
   const [formData, setFormData] = useState({
-    nombre_sala: '',
-    edificio: '',
+    nombre_sala: "",
+    edificio: "",
     fecha: getTodayString(),
     turnos_seleccionados: [],
-    participantes_ci: []
+    participantes_ci: [],
   });
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
+  const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
   const [salaSeleccionada, setSalaSeleccionada] = useState(null);
 
   useEffect(() => {
@@ -40,9 +40,9 @@ const NuevaReserva = () => {
   useEffect(() => {
     // Agregar automáticamente al usuario actual como participante
     if (user?.ci && !formData.participantes_ci.includes(user.ci)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        participantes_ci: [user.ci]
+        participantes_ci: [user.ci],
       }));
     }
   }, [user]);
@@ -53,55 +53,65 @@ const NuevaReserva = () => {
       const [salasData, turnosData, participantesData] = await Promise.all([
         obtenerSalas(),
         obtenerTurnos(),
-        obtenerParticipantes()
+        obtenerParticipantes(),
       ]);
 
       // Filtrar salas según permisos del usuario
-      const salasPermitidas = salasData.filter(sala => canAccessSala(sala.tipo_sala));
-      
+      const salasPermitidas = salasData.filter((sala) =>
+        canAccessSala(sala.tipo_sala),
+      );
+
       setSalas(salasPermitidas);
       setTurnos(turnosData);
       setParticipantes(participantesData);
     } catch (error) {
-      mostrarMensaje('error', 'Error al cargar los datos');
+      mostrarMensaje("error", "Error al cargar los datos");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSalaChange = (e) => {
-    const [nombreSala, edificio] = e.target.value.split('|');
-    const sala = salas.find(s => s.nombre_sala === nombreSala && s.edificio === edificio);
-    
-    setFormData(prev => ({
+    const [nombreSala, edificio] = e.target.value.split("|");
+    const sala = salas.find(
+      (s) => s.nombre_sala === nombreSala && s.edificio === edificio,
+    );
+
+    setFormData((prev) => ({
       ...prev,
       nombre_sala: nombreSala,
-      edificio: edificio
+      edificio: edificio,
     }));
     setSalaSeleccionada(sala);
   };
 
   const handleTurnoToggle = (idTurno) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const turnos = prev.turnos_seleccionados.includes(idTurno)
-        ? prev.turnos_seleccionados.filter(t => t !== idTurno)
+        ? prev.turnos_seleccionados.filter((t) => t !== idTurno)
         : [...prev.turnos_seleccionados, idTurno].sort((a, b) => a - b);
-      
+
       // Validar que sean máximo 2 turnos consecutivos
       if (turnos.length > 2) {
-        mostrarMensaje('error', 'Solo puedes reservar hasta 2 horas consecutivas');
+        mostrarMensaje(
+          "error",
+          "Solo puedes reservar hasta 2 horas consecutivas",
+        );
         return prev;
       }
-      
+
       if (turnos.length === 2) {
         // Verificar que sean consecutivos
         const [turno1, turno2] = turnos;
         if (turno2 - turno1 !== 1) {
-          mostrarMensaje('error', 'Los turnos deben ser consecutivos (2 horas seguidas)');
+          mostrarMensaje(
+            "error",
+            "Los turnos deben ser consecutivos (2 horas seguidas)",
+          );
           return prev;
         }
       }
-      
+
       return { ...prev, turnos_seleccionados: turnos };
     });
   };
@@ -110,51 +120,69 @@ const NuevaReserva = () => {
     // No permitir eliminar al usuario actual
     if (ci === user?.ci) return;
 
-    setFormData(prev => {
+    setFormData((prev) => {
       const participantes = prev.participantes_ci.includes(ci)
-        ? prev.participantes_ci.filter(p => p !== ci)
+        ? prev.participantes_ci.filter((p) => p !== ci)
         : [...prev.participantes_ci, ci];
-      
+
       return { ...prev, participantes_ci: participantes };
     });
   };
 
   const handleAgregarParticipante = () => {
     const email = emailInput.trim().toLowerCase();
-    if (!email) return mostrarMensaje('error', 'Ingresa un email');
+    if (!email) return mostrarMensaje("error", "Ingresa un email");
 
-    const participante = participantes.find(p => p.email.toLowerCase() === email);
-    if (!participante) return mostrarMensaje('error', 'Email no encontrado');
-    if (formData.participantes_ci.includes(participante.ci)) return mostrarMensaje('error', 'Ya está agregado');
-    if (salaSeleccionada && formData.participantes_ci.length >= salaSeleccionada.capacidad) {
-      return mostrarMensaje('error', `Capacidad máxima: ${salaSeleccionada.capacidad}`);
+    const participante = participantes.find(
+      (p) => p.email.toLowerCase() === email,
+    );
+    if (!participante) return mostrarMensaje("error", "Email no encontrado");
+    if (formData.participantes_ci.includes(participante.ci))
+      return mostrarMensaje("error", "Ya está agregado");
+    if (
+      salaSeleccionada &&
+      formData.participantes_ci.length >= salaSeleccionada.capacidad
+    ) {
+      return mostrarMensaje(
+        "error",
+        `Capacidad máxima: ${salaSeleccionada.capacidad}`,
+      );
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      participantes_ci: [...prev.participantes_ci, participante.ci]
+      participantes_ci: [...prev.participantes_ci, participante.ci],
     }));
-    
-    setEmailInput('');
-    mostrarMensaje('success', `${participante.nombre} agregado`);
+
+    setEmailInput("");
+    mostrarMensaje("success", `${participante.nombre} agregado`);
   };
 
   const handleRemoverParticipante = (ci) => {
     if (ci === user?.ci) return;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      participantes_ci: prev.participantes_ci.filter(p => p !== ci)
+      participantes_ci: prev.participantes_ci.filter((p) => p !== ci),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.nombre_sala) return mostrarMensaje('error', 'Selecciona una sala');
-    if (formData.turnos_seleccionados.length === 0) return mostrarMensaje('error', 'Selecciona al menos un turno');
-    if (formData.participantes_ci.length === 0) return mostrarMensaje('error', 'Agrega al menos un participante');
-    if (salaSeleccionada && formData.participantes_ci.length > salaSeleccionada.capacidad) {
-      return mostrarMensaje('error', `Capacidad máxima: ${salaSeleccionada.capacidad} personas`);
+
+    if (!formData.nombre_sala)
+      return mostrarMensaje("error", "Selecciona una sala");
+    if (formData.turnos_seleccionados.length === 0)
+      return mostrarMensaje("error", "Selecciona al menos un turno");
+    if (formData.participantes_ci.length === 0)
+      return mostrarMensaje("error", "Agrega al menos un participante");
+    if (
+      salaSeleccionada &&
+      formData.participantes_ci.length > salaSeleccionada.capacidad
+    ) {
+      return mostrarMensaje(
+        "error",
+        `Capacidad máxima: ${salaSeleccionada.capacidad} personas`,
+      );
     }
 
     try {
@@ -166,15 +194,14 @@ const NuevaReserva = () => {
           edificio: formData.edificio,
           fecha: formData.fecha,
           id_turno: idTurno,
-          participantes_ci: formData.participantes_ci
+          participantes_ci: formData.participantes_ci,
         });
       }
 
-      mostrarMensaje('success', 'Reserva creada');
-      setTimeout(() => navigate('/mis-reservas'), 1500);
-
+      mostrarMensaje("success", "Reserva creada");
+      setTimeout(() => navigate("/mis-reservas"), 1500);
     } catch (error) {
-      mostrarMensaje('error', error.message || 'Error al crear la reserva');
+      mostrarMensaje("error", error.message || "Error al crear la reserva");
     } finally {
       setSubmitting(false);
     }
@@ -182,7 +209,7 @@ const NuevaReserva = () => {
 
   const mostrarMensaje = (tipo, texto) => {
     setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje({ tipo: '', texto: '' }), 3000);
+    setTimeout(() => setMensaje({ tipo: "", texto: "" }), 3000);
   };
 
   if (loading) {
@@ -201,11 +228,7 @@ const NuevaReserva = () => {
           <p>Completa el formulario para reservar una sala de estudio</p>
         </div>
 
-        {mensaje.texto && (
-          <Alert type={mensaje.tipo}>
-            {mensaje.texto}
-          </Alert>
-        )}
+        {mensaje.texto && <Alert type={mensaje.tipo}>{mensaje.texto}</Alert>}
 
         <form onSubmit={handleSubmit} className="reserva-form">
           {/* Selección de Sala */}
@@ -214,18 +237,23 @@ const NuevaReserva = () => {
             <div className="form-group">
               <label>Sala *</label>
               <select
-                value={formData.nombre_sala && formData.edificio ? `${formData.nombre_sala}|${formData.edificio}` : ''}
+                value={
+                  formData.nombre_sala && formData.edificio
+                    ? `${formData.nombre_sala}|${formData.edificio}`
+                    : ""
+                }
                 onChange={handleSalaChange}
                 required
                 disabled={submitting}
               >
                 <option value="">-- Selecciona una sala --</option>
-                {salas.map(sala => (
-                  <option 
+                {salas.map((sala) => (
+                  <option
                     key={`${sala.nombre_sala}-${sala.edificio}`}
                     value={`${sala.nombre_sala}|${sala.edificio}`}
                   >
-                    {sala.nombre_sala} - {sala.edificio} (Cap: {sala.capacidad}) - {sala.tipo_sala}
+                    {sala.nombre_sala} - {sala.edificio} (Cap: {sala.capacidad})
+                    - {sala.tipo_sala}
                   </option>
                 ))}
               </select>
@@ -233,8 +261,13 @@ const NuevaReserva = () => {
 
             {salaSeleccionada && (
               <div className="sala-info">
-                <p><strong>Capacidad:</strong> {salaSeleccionada.capacidad} personas</p>
-                <p><strong>Tipo:</strong> {salaSeleccionada.tipo_sala}</p>
+                <p>
+                  <strong>Capacidad:</strong> {salaSeleccionada.capacidad}{" "}
+                  personas
+                </p>
+                <p>
+                  <strong>Tipo:</strong> {salaSeleccionada.tipo_sala}
+                </p>
               </div>
             )}
           </div>
@@ -247,7 +280,9 @@ const NuevaReserva = () => {
               <input
                 type="date"
                 value={formData.fecha}
-                onChange={(e) => setFormData(prev => ({ ...prev, fecha: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, fecha: e.target.value }))
+                }
                 min={getTodayString()}
                 required
                 disabled={submitting}
@@ -257,18 +292,23 @@ const NuevaReserva = () => {
             <div className="form-group">
               <label>Turnos (bloques de 1 hora) *</label>
               <div className="turnos-grid">
-                {turnos.map(turno => (
-                  <label 
-                    key={turno.id_turno} 
-                    className={`turno-checkbox ${formData.turnos_seleccionados.includes(turno.id_turno) ? 'selected' : ''}`}
+                {turnos.map((turno) => (
+                  <label
+                    key={turno.id_turno}
+                    className={`turno-checkbox ${formData.turnos_seleccionados.includes(turno.id_turno) ? "selected" : ""}`}
                   >
                     <input
                       type="checkbox"
-                      checked={formData.turnos_seleccionados.includes(turno.id_turno)}
+                      checked={formData.turnos_seleccionados.includes(
+                        turno.id_turno,
+                      )}
                       onChange={() => handleTurnoToggle(turno.id_turno)}
                       disabled={submitting}
                     />
-                    <span>{turno.hora_inicio.substring(0, 5)} - {turno.hora_fin.substring(0, 5)}</span>
+                    <span>
+                      {turno.hora_inicio.substring(0, 5)} -{" "}
+                      {turno.hora_fin.substring(0, 5)}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -281,7 +321,7 @@ const NuevaReserva = () => {
           {/* Selección de Participantes */}
           <div className="form-section">
             <h2>👥 Seleccionar Participantes</h2>
-            
+
             <div className="form-group">
               <label>Agregar participante por email</label>
               <div className="email-input-group">
@@ -289,7 +329,10 @@ const NuevaReserva = () => {
                   type="email"
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAgregarParticipante())}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" &&
+                    (e.preventDefault(), handleAgregarParticipante())
+                  }
                   placeholder="ejemplo@uni.edu"
                   disabled={submitting}
                   className="email-input"
@@ -304,23 +347,30 @@ const NuevaReserva = () => {
                 </button>
               </div>
               <small className="help-text">
-                Ingresa el email del participante y presiona Enter o haz clic en Agregar
+                Ingresa el email del participante y presiona Enter o haz clic en
+                Agregar
               </small>
             </div>
 
             <div className="form-group">
-              <label>Participantes agregados ({formData.participantes_ci.length}
+              <label>
+                Participantes agregados ({formData.participantes_ci.length}
                 {salaSeleccionada && ` / ${salaSeleccionada.capacidad} máximo`})
               </label>
               <div className="participantes-chips">
-                {formData.participantes_ci.map(ci => {
-                  const p = participantes.find(part => part.ci === ci);
+                {formData.participantes_ci.map((ci) => {
+                  const p = participantes.find((part) => part.ci === ci);
                   if (!p) return null;
-                  
+
                   return (
-                    <div key={ci} className={`participante-chip ${ci === user?.ci ? 'current-user' : ''}`}>
+                    <div
+                      key={ci}
+                      className={`participante-chip ${ci === user?.ci ? "current-user" : ""}`}
+                    >
                       <div className="participante-info">
-                        <strong>{p.nombre} {p.apellido}</strong>
+                        <strong>
+                          {p.nombre} {p.apellido}
+                        </strong>
                         <small>{p.email}</small>
                       </div>
                       {ci === user?.ci ? (
@@ -347,19 +397,15 @@ const NuevaReserva = () => {
           </div>
 
           <div className="form-actions">
-            <Button 
+            <Button
               variant="secondary"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate("/dashboard")}
               disabled={submitting}
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit"
-              variant="primary"
-              disabled={submitting}
-            >
-              {submitting ? 'Creando reserva...' : 'Crear Reserva'}
+            <Button type="submit" variant="primary" disabled={submitting}>
+              {submitting ? "Creando reserva..." : "Crear Reserva"}
             </Button>
           </div>
         </form>

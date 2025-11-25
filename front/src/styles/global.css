@@ -1,15 +1,15 @@
 /* Importar variables y utilidades globales */
-@import './variables.css';
-@import './utilities.css';
+@import "./variables.css";
+@import "./utilities.css";
 
 /* Importar estilos de componentes */
-@import './auth.css';
-@import './layout.css';
-@import './dashboard.css';
-@import './reservas.css';
-@import './nueva-reserva.css';
-@import './salas.css';
-@import './sanciones.css';
+@import "./auth.css";
+@import "./layout.css";
+@import "./dashboard.css";
+@import "./reservas.css";
+@import "./nueva-reserva.css";
+@import "./salas.css";
+@import "./sanciones.css";
 
 /* Reset básico */
 * {
@@ -19,9 +19,9 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-page);
@@ -89,12 +89,12 @@ td {
   .main-content {
     padding: 20px 10px;
   }
-  
+
   .grid-2,
   .grid-3 {
     grid-template-columns: 1fr;
   }
-  
+
   .page-header h1 {
     font-size: 24px;
   }

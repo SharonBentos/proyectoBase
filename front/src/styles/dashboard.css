@@ -168,11 +168,11 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .recent-reservations {
     padding: 20px;
   }
-  
+
   .reservation-item {
     flex-direction: column;
     align-items: flex-start;

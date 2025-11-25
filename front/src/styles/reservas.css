@@ -278,7 +278,6 @@
   gap: 8px;
 }
 
-
 .participante-tag {
   padding: 4px 12px;
   background: var(--bg-hover);
@@ -312,11 +311,11 @@
   .reserva-detalles {
     grid-template-columns: 1fr;
   }
-  
+
   .reserva-actions {
     flex-direction: column;
   }
-  
+
   .filtros-reservas {
     flex-direction: column;
   }

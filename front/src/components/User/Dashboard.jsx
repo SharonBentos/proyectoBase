@@ -1,10 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { obtenerReservas, obtenerSancionesPorParticipante } from '../../services/api';
-import { formatDate, formatTime, getEstadoColor, isInCurrentWeek } from '../../utils/helpers';
-import Layout from '../Layout/Layout';
-import { Alert, Loading } from '../Common';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import {
+  obtenerReservas,
+  obtenerSancionesPorParticipante,
+} from "../../services/api";
+import {
+  formatDate,
+  formatTime,
+  getEstadoColor,
+  isInCurrentWeek,
+} from "../../utils/helpers";
+import Layout from "../Layout/Layout";
+import { Alert, Loading } from "../Common";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -14,7 +22,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState({
     reservasActivas: 0,
     reservasEstaSemana: 0,
-    horasReservadasHoy: 0
+    horasReservadasHoy: 0,
   });
 
   useEffect(() => {
@@ -25,33 +33,35 @@ const Dashboard = () => {
     try {
       const [misReservas, sancionesData] = await Promise.all([
         user?.ci ? obtenerReservas(user.ci) : Promise.resolve([]),
-        user?.ci ? obtenerSancionesPorParticipante(user.ci) : Promise.resolve([])
+        user?.ci
+          ? obtenerSancionesPorParticipante(user.ci)
+          : Promise.resolve([]),
       ]);
-      
+
       setReservas(misReservas.slice(0, 5));
-      
-      const sancionesActivas = sancionesData.filter(s => 
-        new Date(s.fecha_fin) >= new Date()
+
+      const sancionesActivas = sancionesData.filter(
+        (s) => new Date(s.fecha_fin) >= new Date(),
       );
       setSanciones(sancionesActivas);
 
       // Calcular estadísticas - misReservas ya viene filtrado del backend por CI
-      const activas = misReservas.filter(r => r.estado === 'activa').length;
-      const estaSemana = misReservas.filter(r => 
-        isInCurrentWeek(r.fecha) && r.estado === 'activa'
+      const activas = misReservas.filter((r) => r.estado === "activa").length;
+      const estaSemana = misReservas.filter(
+        (r) => isInCurrentWeek(r.fecha) && r.estado === "activa",
       ).length;
-      const hoy = new Date().toISOString().split('T')[0];
-      const horasHoy = misReservas.filter(r => 
-        r.fecha === hoy && r.estado === 'activa'
+      const hoy = new Date().toISOString().split("T")[0];
+      const horasHoy = misReservas.filter(
+        (r) => r.fecha === hoy && r.estado === "activa",
       ).length;
 
       setStats({
         reservasActivas: activas,
         reservasEstaSemana: estaSemana,
-        horasReservadasHoy: horasHoy
+        horasReservadasHoy: horasHoy,
       });
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -75,7 +85,10 @@ const Dashboard = () => {
         {sanciones.length > 0 && (
           <Alert type="warning">
             <h3>⚠️ Tienes sanciones activas</h3>
-            <p>No puedes realizar reservas hasta el {formatDate(sanciones[0].fecha_fin)}</p>
+            <p>
+              No puedes realizar reservas hasta el{" "}
+              {formatDate(sanciones[0].fecha_fin)}
+            </p>
           </Alert>
         )}
 
@@ -111,7 +124,9 @@ const Dashboard = () => {
         <div className="recent-reservations">
           <div className="section-header">
             <h2>Últimas Reservas</h2>
-            <Link to="/mis-reservas" className="view-all-link">Ver todas →</Link>
+            <Link to="/mis-reservas" className="view-all-link">
+              Ver todas →
+            </Link>
           </div>
 
           {reservas.length === 0 ? (
@@ -125,14 +140,19 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="reservations-list">
-              {reservas.map(reserva => (
+              {reservas.map((reserva) => (
                 <div key={reserva.id_reserva} className="reservation-item">
                   <div className="reservation-info">
                     <h3>{reserva.nombre_sala}</h3>
-                    <p>📍 {reserva.edificio} | 📅 {formatDate(reserva.fecha)}</p>
-                    <p>⏰ {formatTime(reserva.hora_inicio)} - {formatTime(reserva.hora_fin)}</p>
+                    <p>
+                      📍 {reserva.edificio} | 📅 {formatDate(reserva.fecha)}
+                    </p>
+                    <p>
+                      ⏰ {formatTime(reserva.hora_inicio)} -{" "}
+                      {formatTime(reserva.hora_fin)}
+                    </p>
                   </div>
-                  <span 
+                  <span
                     className="estado-badge"
                     style={{ backgroundColor: getEstadoColor(reserva.estado) }}
                   >

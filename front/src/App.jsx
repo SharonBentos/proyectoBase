@@ -1,24 +1,29 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import PrivateRoute from './components/Auth/PrivateRoute';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import PrivateRoute from "./components/Auth/PrivateRoute";
 
 // Auth
-import Login from './components/Auth/Login';
+import Login from "./components/Auth/Login";
 
 // User Components
-import Dashboard from './components/User/Dashboard';
-import MisReservas from './components/User/MisReservas';
-import NuevaReserva from './components/User/NuevaReserva';
-import MisSanciones from './components/User/MisSanciones';
-import SalasDisponibles from './components/User/SalasDisponibles';
+import Dashboard from "./components/User/Dashboard";
+import MisReservas from "./components/User/MisReservas";
+import NuevaReserva from "./components/User/NuevaReserva";
+import MisSanciones from "./components/User/MisSanciones";
+import SalasDisponibles from "./components/User/SalasDisponibles";
 
 // Admin Components
-import AdminDashboard from './components/Admin/AdminDashboard';
-import ListaParticipantes from './components/Admin/ListaParticipantes';
-import ListaSalas from './components/Admin/ListaSalas';
-import ListaReservas from './components/Admin/ListaReservas';
-import ListaSanciones from './components/Admin/ListaSanciones';
-import PaginaMetricas from './components/Admin/PaginaMetricas';
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import ListaParticipantes from "./components/Admin/ListaParticipantes";
+import ListaSalas from "./components/Admin/ListaSalas";
+import ListaReservas from "./components/Admin/ListaReservas";
+import ListaSanciones from "./components/Admin/ListaSanciones";
+import PaginaMetricas from "./components/Admin/PaginaMetricas";
 
 function App() {
   return (

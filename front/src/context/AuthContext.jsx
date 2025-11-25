@@ -1,5 +1,5 @@
-import { createContext, useState, useEffect } from 'react';
-import { loginAPI, obtenerPerfilUsuario } from '../services/api';
+import { createContext, useState, useEffect } from "react";
+import { loginAPI, obtenerPerfilUsuario } from "../services/api";
 
 export const AuthContext = createContext();
 
@@ -9,14 +9,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Verificar si hay una sesión guardada
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
       } catch (error) {
-        console.error('Error al parsear usuario del localStorage:', error);
-        localStorage.removeItem('user');
+        console.error("Error al parsear usuario del localStorage:", error);
+        localStorage.removeItem("user");
       }
     }
     setLoading(false);
@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
       // Llamar al backend real
       const userData = await loginAPI(correo, password);
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem("user", JSON.stringify(userData));
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -36,30 +36,30 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
   };
 
   // Funciones de permisos
   const isAdmin = () => user?.es_administrador === true;
-  
-  const isDocente = () => user?.rol === 'docente';
-  
-  const isPosgrado = () => user?.tipo_programa === 'posgrado';
-  
+
+  const isDocente = () => user?.rol === "docente";
+
+  const isPosgrado = () => user?.tipo_programa === "posgrado";
+
   const canAccessSala = (tipoSala) => {
     if (isAdmin()) return true;
-    if (tipoSala === 'libre') return true;
-    if (tipoSala === 'posgrado') return isPosgrado() || isDocente();
-    if (tipoSala === 'docente') return isDocente();
+    if (tipoSala === "libre") return true;
+    if (tipoSala === "posgrado") return isPosgrado() || isDocente();
+    if (tipoSala === "docente") return isDocente();
     return false;
   };
 
   const hasLimits = (tipoSala) => {
     // Docentes y posgrado no tienen límites en sus salas exclusivas
-    if (isDocente() && tipoSala === 'docente') return false;
-    if (isPosgrado() && tipoSala === 'posgrado') return false;
+    if (isDocente() && tipoSala === "docente") return false;
+    if (isPosgrado() && tipoSala === "posgrado") return false;
     // Para salas libres, todos tienen límites excepto admin
-    if (tipoSala === 'libre' && !isAdmin()) return true;
+    if (tipoSala === "libre" && !isAdmin()) return true;
     return false;
   };
 
@@ -73,12 +73,8 @@ export const AuthProvider = ({ children }) => {
     isPosgrado,
     canAccessSala,
     hasLimits,
-    loading
+    loading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

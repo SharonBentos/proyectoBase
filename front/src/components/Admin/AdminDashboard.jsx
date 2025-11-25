@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { obtenerEstadisticas } from '../../services/api';
-import Layout from '../Layout/Layout';
-import './AdminDashboard.css';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { obtenerEstadisticas } from "../../services/api";
+import Layout from "../Layout/Layout";
+import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalParticipantes: 0,
     totalSalas: 0,
     reservasActivas: 0,
-    sancionesActivas: 0
+    sancionesActivas: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -23,13 +23,13 @@ const AdminDashboard = () => {
       const data = await obtenerEstadisticas();
       setStats(data);
     } catch (error) {
-      console.error('Error al cargar estadísticas:', error);
+      console.error("Error al cargar estadísticas:", error);
       // Datos por defecto si falla
       setStats({
         totalParticipantes: 0,
         totalSalas: 0,
         reservasActivas: 0,
-        sancionesActivas: 0
+        sancionesActivas: 0,
       });
     } finally {
       setLoading(false);
