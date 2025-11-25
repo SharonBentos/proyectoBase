@@ -30,6 +30,8 @@ services:
       obligatorio-bases:
     environment:
       DATABASE_URL: "mysql://basesi:unsecreto@mysql:3306/ucu_salas"
+    depends_on:
+      - mysql
     ports:
       - 8000:80
 
@@ -41,9 +43,10 @@ services:
     networks:
       obligatorio-bases:
     environment:
-      VITE_API_BASE_URL: http://backend:80 # 'backend' is the service name in docker-compose
+      # Con DNS de docker
+      VITE_API_BASE_URL: http://backend:80
     ports:
-      - "3000:80" # Map container port 80 to host port 3000
+      - "3000:80"
     depends_on:
       - backend
 
