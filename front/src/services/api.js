@@ -178,6 +178,28 @@ export const registrarAsistencia = async (idReserva, ciParticipante, asistencia)
   return handleResponse(response);
 };
 
+export const agregarParticipanteAReserva = async (idReserva, ciParticipante) => {
+  const response = await fetch(
+    `${API_BASE_URL}/reservas/${idReserva}/participantes?ci_participante=${ciParticipante}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+  return handleResponse(response);
+};
+
+export const eliminarParticipanteDeReserva = async (idReserva, ciParticipante) => {
+  const response = await fetch(
+    `${API_BASE_URL}/reservas/${idReserva}/participantes/${ciParticipante}`,
+    {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+  return handleResponse(response);
+};
+
 // ============================================
 // SANCIONES
 // ============================================

@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from typing import Optional, List
 
-from app.db import query_one, insert_and_get_id, execute, DatabaseError
+from app.db import query_one, query_all, insert_and_get_id, execute, DatabaseError
 
 
 class BusinessRuleError(Exception):
@@ -294,3 +294,104 @@ def procesar_inasistencias() -> dict:
         reservas_procesadas += 1
 
     return {"reservas_procesadas": reservas_procesadas, "sanciones_creadas": sanciones_creadas}
+
+
+def agregar_participante_a_reserva(id_reserva: int, ci_participante: str) -> None:
+    """Agregar un participante a una reserva existente"""
+    
+    # Verificar que la reserva existe y está activa
+    sql_reserva = """
+        SELECT r.estado, r.nombre_sala, r.edificio, r.fecha, r.id_turno,
+               s.capacidad
+        FROM reserva r
+        JOIN sala s ON r.nombre_sala = s.nombre_sala AND r.edificio = s.edificio
+        WHERE r.id_reserva = %s
+    """
+    reserva = query_one(sql_reserva, (id_reserva,))
+    
+    if not reserva:
+        raise BusinessRuleError("Reserva no encontrada")
+    
+    if reserva["estado"] != "activa":
+        raise BusinessRuleError("Solo se pueden agregar participantes a reservas activas")
+    
+    # Verificar que el participante no esté ya en la reserva
+    sql_check = """
+        SELECT 1 FROM reserva_participante
+        WHERE id_reserva = %s AND ci_participante = %s
+    """
+    if query_one(sql_check, (id_reserva, ci_participante)):
+        raise BusinessRuleError("El participante ya está en esta reserva")
+    
+    # Contar participantes actuales
+    sql_count = """
+        SELECT COUNT(*) as total
+        FROM reserva_participante
+        WHERE id_reserva = %s
+    """
+    count_row = query_one(sql_count, (id_reserva,))
+    participantes_actuales = int(count_row["total"]) if count_row else 0
+    
+    # Verificar capacidad
+    if participantes_actuales >= reserva["capacidad"]:
+        raise BusinessRuleError(f"La sala ha alcanzado su capacidad máxima de {reserva['capacidad']} personas")
+    
+    # Verificar reglas del nuevo participante
+    verificar_reglas_reserva(
+        ci=ci_participante,
+        nombre_sala=reserva["nombre_sala"],
+        edificio=reserva["edificio"],
+        fecha=reserva["fecha"],
+        id_turno=reserva["id_turno"],
+        cantidad_personas=participantes_actuales + 1
+    )
+    
+    # Agregar participante
+    sql_insert = """
+        INSERT INTO reserva_participante
+            (ci_participante, id_reserva, fecha_solicitud_reserva, asistencia)
+        VALUES (%s, %s, NOW(), 0)
+    """
+    execute(sql_insert, (ci_participante, id_reserva))
+
+
+def eliminar_participante_de_reserva(id_reserva: int, ci_participante: str) -> None:
+    """Eliminar un participante de una reserva existente"""
+    
+    # Verificar que la reserva existe y está activa
+    sql_reserva = "SELECT estado FROM reserva WHERE id_reserva = %s"
+    reserva = query_one(sql_reserva, (id_reserva,))
+    
+    if not reserva:
+        raise BusinessRuleError("Reserva no encontrada")
+    
+    if reserva["estado"] != "activa":
+        raise BusinessRuleError("Solo se pueden eliminar participantes de reservas activas")
+    
+    # Verificar que el participante está en la reserva
+    sql_check = """
+        SELECT 1 FROM reserva_participante
+        WHERE id_reserva = %s AND ci_participante = %s
+    """
+    if not query_one(sql_check, (id_reserva, ci_participante)):
+        raise BusinessRuleError("El participante no está en esta reserva")
+    
+    # Contar participantes
+    sql_count = """
+        SELECT COUNT(*) as total
+        FROM reserva_participante
+        WHERE id_reserva = %s
+    """
+    count_row = query_one(sql_count, (id_reserva,))
+    participantes_actuales = int(count_row["total"]) if count_row else 0
+    
+    # No permitir eliminar si es el último participante
+    if participantes_actuales <= 1:
+        raise BusinessRuleError("No se puede eliminar el último participante. Cancele la reserva en su lugar.")
+    
+    # Eliminar participante
+    sql_delete = """
+        DELETE FROM reserva_participante
+        WHERE id_reserva = %s AND ci_participante = %s
+    """
+    execute(sql_delete, (id_reserva, ci_participante))

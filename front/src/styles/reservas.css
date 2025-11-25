@@ -136,11 +136,148 @@
   margin-bottom: 8px;
 }
 
+.participantes-lista {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg-hover);
+  border-radius: 8px;
+}
+
+.participantes-lista strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.participantes-lista ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.participantes-lista li {
+  padding: 10px 12px;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--border-color);
+}
+
+.participante-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.participante-nombre {
+  font-weight: 500;
+}
+
+.asistencia-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.asistencia-badge.asistio {
+  background: #d4edda;
+  color: #155724;
+}
+
+.asistencia-badge.pendiente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.btn-eliminar-participante {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-eliminar-participante:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+.btn-toggle-form {
+  width: 100%;
+  padding: 10px;
+  margin-top: 12px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-toggle-form:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+.agregar-participante-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.agregar-participante-form .input-ci {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.agregar-participante-form .input-ci:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
 .participantes-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+
 
 .participante-tag {
   padding: 4px 12px;
