@@ -1,5 +1,5 @@
 // Configuración de la API
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 // 🎭 MODO DESARROLLO: Cambiar a false cuando el backend esté listo
 const MOCK_MODE = false;
