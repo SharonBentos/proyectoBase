@@ -105,8 +105,8 @@ Este comando levantará el servidor en el puerto `5173` por defecto y automátic
 ## Comandos rápidos para desarrollo local (Windows PowerShell)
 
 ```powershell
-# 1. Base de datos (MySQL en Docker)
-cd c:\ReposUCU\proyectoBase\db ; docker-compose up -d
+# 1. Base de datos (MySQL en Docker) - Recrear desde cero
+cd c:\ReposUCU\proyectoBase\db ; docker-compose down -v ; docker-compose up -d
 
 # 2. Frontend (React + Vite)
 cd c:\ReposUCU\proyectoBase\front ; npm i (si es la primera vez) ; npm run dev
@@ -114,6 +114,11 @@ cd c:\ReposUCU\proyectoBase\front ; npm i (si es la primera vez) ; npm run dev
 # 3. Backend (FastAPI)
 cd c:\ReposUCU\proyectoBase\back ; $env:PYTHONPATH = "c:\ReposUCU\proyectoBase\back" ; python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
+
+> **Nota:** La base de datos se recrea desde cero cada vez que ejecutas `docker-compose down -v ; docker-compose up -d`. Esto ejecuta los scripts:
+> - `00_init.sql` - DROP y CREATE de la base de datos
+> - `01_create_tables.sql` - Creación de todas las tablas
+> - `02_insert_data.sql` - Inserción de datos de prueba
 
 **Puertos:**
 - Base de datos: `3307` (MySQL)
