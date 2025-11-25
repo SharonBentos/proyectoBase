@@ -9,10 +9,11 @@ def get_salas_mas_reservadas():
     try:
         sql = """
             SELECT
-                CONCAT(nombre_sala, ' (', edificio, ')') AS sala,
+                nombre_sala,
+                edificio,
                 COUNT(*) AS reservas
             FROM reserva
-            GROUP BY sala
+            GROUP BY nombre_sala, edificio
             ORDER BY reservas DESC
             LIMIT 10;
         """
@@ -26,11 +27,12 @@ def get_turnos_mas_demandados():
     try:
         sql = """
             SELECT
-                CONCAT(t.hora_inicio, ' - ', t.hora_fin) AS turno,
+                t.hora_inicio,
+                t.hora_fin,
                 COUNT(*) AS reservas
             FROM reserva r
             JOIN turno t ON r.id_turno = t.id_turno
-            GROUP BY turno
+            GROUP BY t.id_turno, t.hora_inicio, t.hora_fin
             ORDER BY reservas DESC
             LIMIT 10;
         """
@@ -44,7 +46,8 @@ def get_promedio_participantes_por_sala():
     try:
         sql = """
             SELECT
-                CONCAT(r.nombre_sala, ' (', r.edificio, ')') AS sala,
+                r.nombre_sala,
+                r.edificio,
                 CAST(AVG(sub.cantidad) AS DECIMAL(10, 2)) AS promedio
             FROM reserva r
             JOIN (
@@ -52,7 +55,8 @@ def get_promedio_participantes_por_sala():
                 FROM reserva_participante
                 GROUP BY id_reserva
             ) sub ON r.id_reserva = sub.id_reserva
-            GROUP BY sala;
+            GROUP BY r.nombre_sala, r.edificio
+            ORDER BY promedio DESC;
         """
         return query_all(sql)
     except DatabaseError as e:
@@ -75,9 +79,7 @@ def get_reservas_por_carrera_y_facultad():
             GROUP BY pa.nombre_programa, f.nombre
             ORDER BY cantidad_reservas DESC;
         """
-        result = query_all(sql)
-        # The frontend expects a dictionary
-        return {f"{row['nombre_programa']} ({row['facultad']})": row['cantidad_reservas'] for row in result}
+        return query_all(sql)
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -88,7 +90,7 @@ def get_porcentaje_ocupacion_por_edificio():
         sql = """
             SELECT
                 edificio,
-                CONCAT(CAST((COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM reserva), 0)) AS DECIMAL(10, 2)), '%%') AS porcentaje
+                (COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM reserva), 0)) AS porcentaje
             FROM reserva
             GROUP BY edificio;
         """
@@ -113,7 +115,6 @@ def get_reservas_asistencias_por_rol():
         """
         result = query_all(sql)
 
-        # The frontend expects a specific dictionary format
         data = {
             "alumnos_grado": {"reservas": 0, "asistencias": 0},
             "alumnos_posgrado": {"reservas": 0, "asistencias": 0},
@@ -171,28 +172,20 @@ def get_sanciones_por_rol():
 @router.get("/comparativa-uso-reservas")
 def get_comparativa_uso():
     try:
-        total_reservas_query = "SELECT COUNT(*) as total FROM reserva"
-        total_reservas_result = query_all(total_reservas_query)
-        total_reservas = total_reservas_result[0]['total'] if total_reservas_result else 0
-
-        data = {
-            "efectivas": "0.00%",
-            "canceladas": "0.00%",
-            "noAsistidas": "0.00%",
-        }
-
-        if total_reservas == 0:
-            return data
-
-        sql = f"""
+        sql = """
             SELECT
                 estado,
-                CONCAT(CAST((COUNT(*) * 100.0 / {total_reservas}) AS DECIMAL(10, 2)), '%%') AS porcentaje
+                (COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM reserva), 0)) AS porcentaje
             FROM reserva
             GROUP BY estado;
         """
-
         result = query_all(sql)
+
+        data = {
+            "efectivas": 0.0,
+            "canceladas": 0.0,
+            "noAsistidas": 0.0,
+        }
 
         for row in result:
             if row['estado'] == 'finalizada':
@@ -219,15 +212,7 @@ def get_uso_salas_por_tipo():
             GROUP BY s.tipo_sala;
         """
         result = query_all(sql)
-
-        # Mapping database values to frontend expected keys
-        tipo_map = {
-            "libre": "Uso libre",
-            "posgrado": "Exclusiva de posgrado",
-            "docente": "Exclusiva de docentes"
-        }
-
-        return {tipo_map.get(row['tipo_sala'], row['tipo_sala']): row['reservas'] for row in result}
+        return {row['tipo_sala']: row['reservas'] for row in result}
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -238,20 +223,16 @@ def get_tasa_no_asistencia_por_carrera():
         sql = """
             SELECT
                 pa.nombre_programa,
-                CONCAT(
-                    CAST(
-                        COALESCE(
-                            SUM(CASE WHEN r.estado = 'sin asistencia' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(r.id_reserva), 0),
-                            0
-                        )
-                        AS DECIMAL(10, 2)
-                    ),
-                '%%') AS tasa_no_asistencia
+                COALESCE(
+                    SUM(CASE WHEN r.estado = 'sin asistencia' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(r.id_reserva), 0),
+                    0
+                ) AS tasa_no_asistencia
             FROM reserva r
             JOIN reserva_participante rp ON r.id_reserva = rp.id_reserva
             JOIN participante_programa_academico ppa ON rp.ci_participante = ppa.ci_participante
             JOIN programa_academico pa ON ppa.nombre_programa = pa.nombre_programa
-            GROUP BY pa.nombre_programa;
+            GROUP BY pa.nombre_programa
+            ORDER BY tasa_no_asistencia DESC;
         """
         result = query_all(sql)
         return {row['nombre_programa']: row['tasa_no_asistencia'] for row in result}
@@ -278,6 +259,6 @@ def get_distribucion_grupos():
             ORDER BY participantes;
         """
         result = query_all(sql)
-        return {f"{row['participantes']} participantes": row['cantidad_reservas'] for row in result}
+        return {row['participantes']: row['cantidad_reservas'] for row in result}
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=str(e))
