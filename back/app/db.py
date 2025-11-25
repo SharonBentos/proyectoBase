@@ -1,37 +1,49 @@
-import os
-from pathlib import Path
-from urllib.parse import urlparse
 from dotenv import load_dotenv
-
-# Cargar .env desde la carpeta back
-env_path = Path(__file__).parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
-
-import pymysql
+from pathlib import Path
 from pymysql.err import MySQLError
-
+from urllib.parse import urlparse
+from dbutils.pooled_db import PooledDB
+import os
+import pymysql
 
 class DatabaseError(Exception):
     pass
 
 
-def get_connection():
-    """Crea una nueva conexión a la base de datos"""
-    raw_url = os.getenv("DATABASE_URL")
-    if not raw_url:
-        raise DatabaseError(
-            "DATABASE_URL no está definida. "
-            "Verificá el archivo .env en la carpeta 'back'."
-        )
+_pool = None
+_url = None
 
-    url = urlparse(raw_url)
+def get_connection():
+    global _pool
+    global _url
+
+    if _pool is not None:
+        return _pool.connection()
+
+    if _url is None:
+        raw_url = os.getenv("DATABASE_URL")
+        if not raw_url:
+            raise DatabaseError(
+                """La variable de entorno DATABASE_URL no está definida.
+                Verificá el archivo .env en la carpeta 'back'."""
+            )
+
+        url = urlparse(raw_url)
+        _url = url
+
+    url = _url
 
     assert url.hostname is not None and not isinstance(url.hostname, bytes)
     assert url.username is not None and not isinstance(url.username, bytes)
     assert not isinstance(url.path, bytes)
 
     try:
-        connection = pymysql.connect(
+        print('Abriendo una conexión nueva con MySQL...')
+        _pool = PooledDB(
+            creator=pymysql,
+            maxconnections=10,
+            blocking=True,             # wait if pool full
+            ping=1,                    # check connection health
             host=url.hostname,
             user=url.username,
             password=url.password or "",
@@ -40,15 +52,11 @@ def get_connection():
             cursorclass=pymysql.cursors.DictCursor,
             autocommit=False,
         )
-        return connection
+        print("Conexión a MySQL OK")
+
+        return _pool.connection()
     except MySQLError as e:
         raise DatabaseError(f"Error conectando a la base de datos: {e}") from e
-
-
-def conn():
-    """Alias para compatibilidad con código existente"""
-    return get_connection()
-
 
 
 def query_all(sql: str, params: tuple | dict | None = None):
