@@ -111,7 +111,7 @@ cd c:\ReposUCU\proyectoBase\db ; docker-compose down -v ; docker-compose up -d
 # 2. Frontend (React + Vite)
 cd c:\ReposUCU\proyectoBase\front ; npm i (si es la primera vez) ; npm run dev
 
-# 3. Backend (FastAPI)
+# 3. Backend (FastAPI) ||| Hay que esperar que el servicio de base de datos esté arriba sino tira error
 cd c:\ReposUCU\proyectoBase\back ; $env:PYTHONPATH = "c:\ReposUCU\proyectoBase\back" ; python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 

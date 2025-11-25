@@ -1,6 +1,8 @@
 // Formatear fecha para mostrar
 export const formatDate = (dateString) => {
-  const date = new Date(dateString);
+  // Evitar problemas de zona horaria usando la fecha local
+  const [year, month, day] = dateString.split('-');
+  const date = new Date(year, month - 1, day);
   return date.toLocaleDateString('es-UY', {
     year: 'numeric',
     month: '2-digit',
@@ -17,18 +19,25 @@ export const formatTime = (timeString) => {
 // Obtener el rango de la semana actual
 export const getCurrentWeekRange = () => {
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
   const monday = new Date(today);
-  monday.setDate(today.getDate() - today.getDay() + 1);
+  const dayOfWeek = today.getDay();
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si es domingo (0), retroceder 6 días
+  monday.setDate(today.getDate() + diff);
+  monday.setHours(0, 0, 0, 0);
   
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
   
   return { monday, sunday };
 };
 
 // Calcular si una fecha está en la semana actual
 export const isInCurrentWeek = (dateString) => {
-  const date = new Date(dateString);
+  const [year, month, day] = dateString.split('-');
+  const date = new Date(year, month - 1, day);
   const { monday, sunday } = getCurrentWeekRange();
   return date >= monday && date <= sunday;
 };
@@ -66,9 +75,12 @@ export const getTipoSalaColor = (tipo) => {
 
 // Verificar si una fecha es hoy
 export const isToday = (dateString) => {
-  const date = new Date(dateString);
+  const [year, month, day] = dateString.split('-');
+  const date = new Date(year, month - 1, day);
   const today = new Date();
-  return date.toDateString() === today.toDateString();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime() === today.getTime();
 };
 
 // Obtener fecha actual en formato YYYY-MM-DD

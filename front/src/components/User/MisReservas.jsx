@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { obtenerReservas, cancelarReserva, registrarAsistencia } from '../../services/api';
+import { obtenerReservas, cancelarReserva, registrarAsistencia, agregarParticipanteAReserva, eliminarParticipanteDeReserva, obtenerParticipantes } from '../../services/api';
 import { formatDate, formatTime, getEstadoColor, isToday } from '../../utils/helpers';
 import Layout from '../Layout/Layout';
 import { Alert, Loading, Button, EmptyState } from '../Common';
@@ -11,9 +11,13 @@ const MisReservas = () => {
   const [filtro, setFiltro] = useState('todas');
   const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
+  const [mostrandoFormulario, setMostrandoFormulario] = useState(null);
+  const [todosParticipantes, setTodosParticipantes] = useState([]);
+  const [ciNuevoParticipante, setCiNuevoParticipante] = useState('');
 
   useEffect(() => {
     cargarReservas();
+    cargarParticipantes();
   }, [user]);
 
   const cargarReservas = async () => {
@@ -24,6 +28,15 @@ const MisReservas = () => {
       mostrarMensaje('error', 'Error al cargar las reservas');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const cargarParticipantes = async () => {
+    try {
+      const participantes = await obtenerParticipantes();
+      setTodosParticipantes(participantes);
+    } catch (error) {
+      console.error('Error al cargar participantes:', error);
     }
   };
 
@@ -43,6 +56,44 @@ const MisReservas = () => {
     try {
       await registrarAsistencia(idReserva, user.ci, true);
       mostrarMensaje('success', 'Asistencia registrada');
+      cargarReservas();
+    } catch (error) {
+      mostrarMensaje('error', error.message);
+    }
+  };
+
+  const handleAgregarParticipante = async (idReserva) => {
+    if (!ciNuevoParticipante.trim()) {
+      mostrarMensaje('error', 'Debe ingresar una cédula');
+      return;
+    }
+
+    try {
+      await agregarParticipanteAReserva(idReserva, ciNuevoParticipante.trim());
+      mostrarMensaje('success', 'Participante agregado');
+      setCiNuevoParticipante('');
+      setMostrandoFormulario(null);
+      cargarReservas();
+    } catch (error) {
+      mostrarMensaje('error', error.message);
+    }
+  };
+
+  const toggleFormulario = (idReserva) => {
+    if (mostrandoFormulario === idReserva) {
+      setMostrandoFormulario(null);
+      setCiNuevoParticipante('');
+    } else {
+      setMostrandoFormulario(idReserva);
+    }
+  };
+
+  const handleEliminarParticipante = async (idReserva, ciParticipante) => {
+    if (!confirm('¿Eliminar este participante de la reserva?')) return;
+
+    try {
+      await eliminarParticipanteDeReserva(idReserva, ciParticipante);
+      mostrarMensaje('success', 'Participante eliminado');
       cargarReservas();
     } catch (error) {
       mostrarMensaje('error', error.message);
@@ -126,7 +177,75 @@ const MisReservas = () => {
                   <p>📍 {reserva.edificio}</p>
                   <p>📅 {formatDate(reserva.fecha)}</p>
                   <p>⏰ {formatTime(reserva.hora_inicio)} - {formatTime(reserva.hora_fin)}</p>
-                  <p>👥 {reserva.participantes_ci?.length || 0} participantes</p>
+                  <p>👥 {reserva.participantes?.length || 0} participantes</p>
+                  
+                  {reserva.participantes && reserva.participantes.length > 0 && (
+                    <div className="participantes-lista">
+                      <strong>Participantes:</strong>
+                      <ul>
+                        {reserva.participantes.map((participante) => (
+                          <li key={participante.ci}>
+                            <div className="participante-info">
+                              <span className="participante-nombre">
+                                {participante.nombre} {participante.apellido}
+                                {participante.ci === user?.ci && " (tú)"}
+                              </span>
+                              {participante.asistencia ? (
+                                <span className="asistencia-badge asistio">Asistió ✓</span>
+                              ) : (
+                                <span className="asistencia-badge pendiente">Pendiente</span>
+                              )}
+                            </div>
+                            {reserva.estado === 'activa' && participante.ci !== user?.ci && (
+                              <button
+                                onClick={() => handleEliminarParticipante(reserva.id_reserva, participante.ci)}
+                                className="btn-eliminar-participante"
+                                title="Eliminar participante"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      {reserva.estado === 'activa' && (
+                        <>
+                          <button 
+                            className="btn-toggle-form"
+                            onClick={() => toggleFormulario(reserva.id_reserva)}
+                          >
+                            {mostrandoFormulario === reserva.id_reserva ? '✕ Cerrar' : '➕ Añadir participante'}
+                          </button>
+                          
+                          {mostrandoFormulario === reserva.id_reserva && (
+                            <div className="agregar-participante-form">
+                              <input
+                                type="text"
+                                placeholder="Ingresa la CI del participante"
+                                value={ciNuevoParticipante}
+                                onChange={(e) => setCiNuevoParticipante(e.target.value)}
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleAgregarParticipante(reserva.id_reserva);
+                                  }
+                                }}
+                                className="input-ci"
+                                autoFocus
+                              />
+                              <Button
+                                variant="primary"
+                                onClick={() => handleAgregarParticipante(reserva.id_reserva)}
+                                size="sm"
+                              >
+                                Añadir
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {reserva.estado === 'activa' && (

@@ -53,35 +53,39 @@
 }
 
 .turno-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: block;
   padding: 12px 16px;
   border: 2px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   background: white;
+  text-align: center;
+  user-select: none;
 }
 
 .turno-checkbox:hover {
   border-color: var(--primary-color);
   background: var(--bg-hover);
+  transform: translateY(-2px);
 }
 
 .turno-checkbox.selected {
   border-color: var(--primary-color);
-  background: var(--primary-gradient);
-  color: white;
+  border-width: 3px;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
 }
 
 .turno-checkbox input[type="checkbox"] {
-  cursor: pointer;
+  display: none;
 }
 
 .turno-checkbox span {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: block;
 }
 
 /* Participantes por email */
