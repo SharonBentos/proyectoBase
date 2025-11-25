@@ -65,6 +65,9 @@ const Navbar = () => {
               <Link to="/admin/sanciones" className="navbar-link">
                 Sanciones
               </Link>
+              <Link to="/admin/metricas" className="navbar-link">
+                Métricas
+              </Link>
             </>
           ) : (
             // Menú de Usuario Normal
@@ -75,8 +78,8 @@ const Navbar = () => {
               <Link to="/mis-reservas" className="navbar-link">
                 Mis Reservas
               </Link>
-              <Link 
-                to="/nueva-reserva" 
+              <Link
+                to="/nueva-reserva"
                 className={`navbar-link ${tieneSancion ? 'disabled' : ''}`}
                 onClick={handleNuevaReserva}
               >

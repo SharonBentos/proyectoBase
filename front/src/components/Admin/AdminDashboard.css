@@ -134,3 +134,60 @@
     grid-template-columns: 1fr;
   }
 }
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.metrics-grid .card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.metrics-grid .card-header {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.metrics-grid .card-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.metrics-grid .card-body {
+  padding: 1rem;
+  flex-grow: 1;
+}
+
+.metrics-grid ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.metrics-grid li {
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.metrics-grid .table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.metrics-grid .table th,
+.metrics-grid .table td {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.metrics-grid .table th {
+  font-weight: 600;
+  color: #333;
+}

@@ -122,10 +122,10 @@ export const obtenerReservas = async (ci = null) => {
   const url = ci ? `${API_BASE_URL}/reservas/?ci=${ci}` : `${API_BASE_URL}/reservas/`;
   const response = await fetch(url);
   const reservas = await handleResponse(response);
-  
+
   // Enriquecer con datos de turnos para mostrar hora_inicio y hora_fin
   const turnos = await obtenerTurnos();
-  
+
   return reservas.map(reserva => {
     const turno = turnos.find(t => t.id_turno === reserva.id_turno);
     return {
@@ -283,12 +283,116 @@ export const obtenerProgramas = async () => {
   return [];
 };
 
+export const obtenerFacultades = async () => {
+  return [
+    { id_facultad: 1, nombre: 'Facultad de Ingeniería y Tecnologías' },
+    { id_facultad: 2, nombre: 'Facultad de Ciencias Empresariales' },
+  ];
+};
+
+export const obtenerProgramasAcademicos = async () => {
+  return [
+    { nombre_programa: 'Ingeniería en Informática', id_facultad: 1, tipo: 'grado' },
+    { nombre_programa: 'Licenciatura en Sistemas', id_facultad: 1, tipo: 'grado' },
+    { nombre_programa: 'Contador Público', id_facultad: 2, tipo: 'grado' },
+    { nombre_programa: 'Dirección de Empresas', id_facultad: 2, tipo: 'grado' },
+    { nombre_programa: 'Master en Big Data', id_facultad: 1, tipo: 'posgrado' },
+  ];
+};
+
+export const obtenerReservaParticipantes = async () => {
+    return [
+        { id_reserva: 1, ci_participante: '12345678', asistencia: true },
+        { id_reserva: 1, ci_participante: '87654321', asistencia: true },
+        { id_reserva: 2, ci_participante: '11112222', asistencia: false },
+    ];
+};
+
 // ============================================
 // ESTADÍSTICAS (ADMIN)
 // ============================================
 
+const mockFetch = (data) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(data);
+    }, 300 + Math.random() * 500);
+  });
+};
+
+const obtenerMetrica = async (endpoint, mockData) => {
+  if (MOCK_MODE) {
+    return mockFetch(mockData);
+  }
+  const response = await fetch(`${API_BASE_URL}/metrics${endpoint}`);
+  return handleResponse(response);
+};
+
+// --- Funciones de métricas individuales ---
+
+export const getSalasMasReservadas = () => obtenerMetrica('/salas-mas-reservadas', [
+  { sala: 'Sala de Reuniones 1 (Edificio Central)', reservas: 120 },
+  { sala: 'Sala de Estudio 5 (Edificio Norte)', reservas: 95 },
+]);
+
+export const getTurnosMasDemandados = () => obtenerMetrica('/turnos-mas-demandados', [
+  { turno: '10:00:00 - 11:00:00', reservas: 250 },
+  { turno: '16:00:00 - 17:00:00', reservas: 230 },
+]);
+
+export const getPromedioParticipantesPorSala = () => obtenerMetrica('/promedio-participantes-por-sala', [
+    { sala: 'Sala de Reuniones 1 (Edificio Central)', promedio: '3.5' },
+    { sala: 'Sala de Estudio 5 (Edificio Norte)', promedio: '2.1' },
+]);
+
+export const getReservasPorCarreraYFacultad = () => obtenerMetrica('/reservas-por-carrera-y-facultad', {
+  'Ingeniería en Informática (Facultad de Ingeniería y Tecnologías)': 150,
+  'Contador Público (Facultad de Ciencias Empresariales)': 120,
+});
+
+export const getPorcentajeOcupacionPorEdificio = () => obtenerMetrica('/porcentaje-ocupacion-por-edificio', [
+    { edificio: 'Edificio Central', porcentaje: '75.5%' },
+    { edificio: 'Edificio Norte', porcentaje: '60.2%' },
+]);
+
+export const getReservasAsistenciasPorRol = () => obtenerMetrica('/reservas-asistencias-por-rol', {
+  alumnos_grado: { reservas: 400, asistencias: 350 },
+  alumnos_posgrado: { reservas: 150, asistencias: 140 },
+  profesores: { reservas: 80, asistencias: 75 },
+});
+
+export const getSancionesPorRol = () => obtenerMetrica('/sanciones-por-rol', {
+  alumnos_grado: 12,
+  alumnos_posgrado: 3,
+  profesores: 1,
+});
+
+export const getComparativaUso = () => obtenerMetrica('/comparativa-uso-reservas', {
+  efectivas: '85.00%',
+  canceladas: '10.00%',
+  noAsistidas: '5.00%',
+});
+
+export const getUsoSalasPorTipo = () => obtenerMetrica('/uso-salas-por-tipo', {
+  'Uso libre': 500,
+  'Exclusiva de posgrado': 150,
+  'Exclusiva de docentes': 80,
+});
+
+export const getTasaNoAsistenciaPorCarrera = () => obtenerMetrica('/tasa-no-asistencia-por-carrera', {
+  'Ingeniería en Informática': '4.5%',
+  'Contador Público': '6.0%',
+});
+
+export const getDistribucionGrupos = () => obtenerMetrica('/distribucion-tamanio-grupos', {
+  '2 participantes': 200,
+  '3 participantes': 150,
+  '4 participantes': 100,
+});
+
+
 export const obtenerEstadisticas = async () => {
-  // Backend no tiene endpoint de stats, calculamos desde los datos reales
+  // ... la función existente puede permanecer igual
   try {
     const [participantes, salas, reservas, sanciones] = await Promise.all([
       obtenerParticipantes(),
@@ -296,27 +400,67 @@ export const obtenerEstadisticas = async () => {
       obtenerReservas(),
       obtenerSanciones()
     ]);
-    
+
     const hoy = new Date().toISOString().split('T')[0];
-    
+
     return {
       totalParticipantes: participantes.length,
       totalSalas: salas.length,
       reservasActivas: reservas.filter(r => r.estado === 'activa').length,
       sancionesActivas: sanciones.filter(s => {
-        // Comparar fechas como strings en formato YYYY-MM-DD
         return s.fecha_fin && s.fecha_fin >= hoy;
       }).length
     };
   } catch (error) {
     console.error('Error al obtener estadísticas:', error);
-    // Retornar valores por defecto si hay error
+    return { totalParticipantes: 0, totalSalas: 0, reservasActivas: 0, sancionesActivas: 0 };
+  }
+};
+
+export const obtenerMetricas = async () => {
+  try {
+    const [
+      salasMasReservadas,
+      turnosMasDemandados,
+      promedioParticipantesPorSala,
+      reservasPorCarreraYFacultad,
+      porcentajeOcupacionPorEdificio,
+      reservasAsistenciasPorRol,
+      sancionesPorRol,
+      comparativaUso,
+      usoSalasPorTipo,
+      tasaNoAsistenciaPorCarrera,
+      distribucionGrupos,
+    ] = await Promise.all([
+      getSalasMasReservadas(),
+      getTurnosMasDemandados(),
+      getPromedioParticipantesPorSala(),
+      getReservasPorCarreraYFacultad(),
+      getPorcentajeOcupacionPorEdificio(),
+      getReservasAsistenciasPorRol(),
+      getSancionesPorRol(),
+      getComparativaUso(),
+      getUsoSalasPorTipo(),
+      getTasaNoAsistenciaPorCarrera(),
+      getDistribucionGrupos(),
+    ]);
+
     return {
-      totalParticipantes: 0,
-      totalSalas: 0,
-      reservasActivas: 0,
-      sancionesActivas: 0
+      salasMasReservadas,
+      turnosMasDemandados,
+      promedioParticipantesPorSala,
+      reservasPorCarreraYFacultad,
+      porcentajeOcupacionPorEdificio,
+      reservasAsistenciasPorRol,
+      sancionesPorRol,
+      comparativaUso,
+      usoSalasPorTipo,
+      tasaNoAsistenciaPorCarrera,
+      distribucionGrupos,
     };
+  } catch (error) {
+    console.error('Error al obtener métricas:', error);
+    throw error;
   }
 };
 

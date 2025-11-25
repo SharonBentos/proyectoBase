@@ -18,6 +18,7 @@ import ListaParticipantes from './components/Admin/ListaParticipantes';
 import ListaSalas from './components/Admin/ListaSalas';
 import ListaReservas from './components/Admin/ListaReservas';
 import ListaSanciones from './components/Admin/ListaSanciones';
+import PaginaMetricas from './components/Admin/PaginaMetricas';
 
 function App() {
   return (
@@ -28,79 +29,87 @@ function App() {
           <Route path="/" element={<Login />} />
 
           {/* Rutas de usuario normal */}
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <PrivateRoute>
                 <Dashboard />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/mis-reservas" 
+          <Route
+            path="/mis-reservas"
             element={
               <PrivateRoute>
                 <MisReservas />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/nueva-reserva" 
+          <Route
+            path="/nueva-reserva"
             element={
               <PrivateRoute>
                 <NuevaReserva />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/salas" 
+          <Route
+            path="/salas"
             element={
               <PrivateRoute>
                 <SalasDisponibles />
               </PrivateRoute>
-            } 
+            }
           />
 
           {/* Rutas de administrador */}
-          <Route 
-            path="/admin" 
+          <Route
+            path="/admin"
             element={
               <PrivateRoute requireAdmin={true}>
                 <AdminDashboard />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/participantes" 
+          <Route
+            path="/admin/participantes"
             element={
               <PrivateRoute requireAdmin={true}>
                 <ListaParticipantes />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/salas" 
+          <Route
+            path="/admin/salas"
             element={
               <PrivateRoute requireAdmin={true}>
                 <ListaSalas />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/reservas" 
+          <Route
+            path="/admin/reservas"
             element={
               <PrivateRoute requireAdmin={true}>
                 <ListaReservas />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/sanciones" 
+          <Route
+            path="/admin/sanciones"
             element={
               <PrivateRoute requireAdmin={true}>
                 <ListaSanciones />
               </PrivateRoute>
-            } 
+            }
+          />
+          <Route
+            path="/admin/metricas"
+            element={
+              <PrivateRoute requireAdmin={true}>
+                <PaginaMetricas />
+              </PrivateRoute>
+            }
           />
 
           {/* Ruta por defecto */}
