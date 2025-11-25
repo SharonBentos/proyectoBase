@@ -3,7 +3,6 @@
 -- Define la estructura completa de la base de datos
 -- ============================================================================
 
--- TABLA PARTICIPANTE
 CREATE TABLE participante (
     ci VARCHAR(20) NOT NULL,
     nombre VARCHAR(100) NOT NULL,
@@ -13,7 +12,6 @@ CREATE TABLE participante (
     PRIMARY KEY (ci)
 );
 
--- TABLA LOGIN (adaptada para el backend actual)
 CREATE TABLE login (
     correo VARCHAR(100) NOT NULL,
     password VARCHAR(100) NOT NULL,
@@ -21,14 +19,12 @@ CREATE TABLE login (
     PRIMARY KEY (correo)
 );
 
--- TABLA FACULTAD
 CREATE TABLE facultad (
     id_facultad INT AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
     PRIMARY KEY (id_facultad)
 );
 
--- TABLA PROGRAMA ACADEMICO
 CREATE TABLE programa_academico (
     nombre_programa VARCHAR(100),
     id_facultad INT NOT NULL,
@@ -37,7 +33,6 @@ CREATE TABLE programa_academico (
     FOREIGN KEY (id_facultad) REFERENCES facultad(id_facultad)
 );
 
--- TABLA RELACION PARTICIPANTE-PROGRAMA
 CREATE TABLE participante_programa_academico (
     id_alumno_programa INT AUTO_INCREMENT,
     ci_participante VARCHAR(20) NOT NULL,
@@ -48,7 +43,6 @@ CREATE TABLE participante_programa_academico (
     FOREIGN KEY (nombre_programa) REFERENCES programa_academico(nombre_programa)
 );
 
--- TABLA EDIFICIO
 CREATE TABLE edificio (
     nombre_edificio VARCHAR(100),
     direccion VARCHAR(120) NOT NULL,
@@ -56,7 +50,6 @@ CREATE TABLE edificio (
     PRIMARY KEY (nombre_edificio)
 );
 
--- TABLA SALA
 CREATE TABLE sala (
     nombre_sala VARCHAR(100),
     edificio VARCHAR(100) NOT NULL,
@@ -66,7 +59,6 @@ CREATE TABLE sala (
     FOREIGN KEY (edificio) REFERENCES edificio(nombre_edificio)
 );
 
--- TABLA TURNO (bloques horarios de 1 hora entre 08:00 y 23:00)
 CREATE TABLE turno (
     id_turno INT AUTO_INCREMENT,
     hora_inicio TIME NOT NULL,
@@ -74,7 +66,6 @@ CREATE TABLE turno (
     PRIMARY KEY (id_turno)
 );
 
--- TABLA RESERVA
 CREATE TABLE reserva (
     id_reserva INT AUTO_INCREMENT,
     nombre_sala VARCHAR(100) NOT NULL,
@@ -87,7 +78,6 @@ CREATE TABLE reserva (
     FOREIGN KEY (nombre_sala, edificio) REFERENCES sala(nombre_sala, edificio)
 );
 
--- TABLA RESERVA_PARTICIPANTE
 CREATE TABLE reserva_participante (
     ci_participante VARCHAR(20),
     id_reserva INT,
@@ -98,7 +88,6 @@ CREATE TABLE reserva_participante (
     FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva)
 );
 
--- TABLA SANCION_PARTICIPANTE
 CREATE TABLE sancion_participante (
     id_sancion INT AUTO_INCREMENT,
     ci_participante VARCHAR(20) NOT NULL,
@@ -107,8 +96,3 @@ CREATE TABLE sancion_participante (
     PRIMARY KEY (id_sancion),
     FOREIGN KEY (ci_participante) REFERENCES participante(ci)
 );
-
--- Relacionar login con participante (correo -> participante.email)
--- ALTER TABLE login
--- ADD CONSTRAINT fk_login_participante
--- FOREIGN KEY (correo) REFERENCES participante(email);

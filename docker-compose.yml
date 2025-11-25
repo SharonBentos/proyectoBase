@@ -9,10 +9,13 @@ services:
       obligatorio-bases:
     environment:
       MYSQL_ROOT_PASSWORD: unsecreto
+      MYSQL_DATABASE: ucu_salas
+      MYSQL_USER: basesi
+      MYSQL_PASSWORD: unsecreto
     ports:
       - "3306:3306"
     volumes:
-      - ./mysql_db:/var/lib/mysql
+      - mysql_db:/var/lib/mysql
       - ./db/00_init.sql:/docker-entrypoint-initdb.d/00_init.sql
       - ./db/01_create_tables.sql:/docker-entrypoint-initdb.d/01_create_tables.sql
       - ./db/02_insert_data.sql:/docker-entrypoint-initdb.d/02_insert_data.sql
@@ -25,5 +28,7 @@ services:
     container_name: obligatorio-backend
     networks:
       obligatorio-bases:
+    environment:
+      DATABASE_URL: "mysql://basesi:unsecreto@mysql:3306/ucu_salas"
     ports:
       - 8000:80
